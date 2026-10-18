@@ -12,8 +12,12 @@ back it up, and uninstalling the app removes all of it.
 phone's file picker, and only when you press it. Where that file goes after that is up to you.
 
 The permissions it asks for are for the bells and nothing else: exact alarms, so they ring on
-time; a foreground service and a wake lock, so they ring with the screen off; and, only if you
-switch it on, access to Do Not Disturb, so it can turn alarms-only on for a sitting and back
-off afterwards.
+time; a foreground service and a wake lock, so they ring with the screen off; notifications,
+for the quiet one that shows while a sitting is under way (Android asks a foreground service to
+show one); and, only if you switch it on, access to Do Not Disturb, so it can turn alarms-only
+on for a sitting and back off afterwards. The one more in its manifest is not one you are asked
+for: Android's support library adds it to every app built with it
+(`DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`), so that the app's own internal messages can reach
+only the app itself.
 
 The About dialog's last line opens a web address in your browser, and only when you press it.
