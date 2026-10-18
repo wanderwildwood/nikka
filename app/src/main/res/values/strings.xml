@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Practice</string>
+
+    <!-- Screen-reader labels for the top-bar and grid buttons -->
+    <string name="cd_back">Back</string>
+    <string name="cd_about">About</string>
+    <string name="cd_settings">Settings</string>
+    <string name="cd_edit">Change this habit</string>
+    <string name="cd_previous_month">Previous month</string>
+    <string name="cd_next_month">Next month</string>
+
+    <!-- Shared words -->
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="set">Set</string>
+    <string name="done">Done</string>
+    <string name="none">None</string>
+    <string name="cannot_open">This phone has nothing that opens that.</string>
+    <!-- The built-in habit, ticked by any sitting -->
+    <string name="meditation">Meditation</string>
+    <!-- A length, short: "20 min" -->
+    <string name="minutes_short">%1$s min</string>
+    <!-- A sitting under a minute: "40 sec" -->
+    <string name="seconds_short">%1$s sec</string>
+    <!-- A sitting ended early: "12 min of 20" (the second is the planned minutes), or "40 sec of 20 min" -->
+    <string name="sat_of">%1$s of %2$s</string>
+    <!-- When a sitting began: "Sat 17 Oct, 07:20" -->
+    <string name="day_time">%1$s, %2$s</string>
+
+    <!-- The three tabs -->
+    <string name="tab_sit">Sit</string>
+    <string name="tab_today">Today</string>
+    <string name="tab_log">Log</string>
+
+    <!-- ============================================================ -->
+    <!-- Sit tab -->
+
+    <!-- Beside the big figure of the length: "20 minutes" -->
+    <plurals name="minutes_word">
+        <item quantity="one">minute</item>
+        <item quantity="other">minutes</item>
+    </plurals>
+    <!-- The last of the length choices, for any other length -->
+    <string name="sit_other">Other</string>
+    <string name="sit_other_title">Length of the sitting</string>
+    <string name="sit_other_minutes">Minutes</string>
+    <!-- A wait before the first bell, to settle -->
+    <string name="sit_warmup">Warm-up</string>
+    <string name="sit_interval">Interval bell</string>
+    <plurals name="seconds_long">
+        <item quantity="one">%1$s second</item>
+        <item quantity="other">%1$s seconds</item>
+    </plurals>
+    <plurals name="minutes_long">
+        <item quantity="one">%1$s minute</item>
+        <item quantity="other">%1$s minutes</item>
+    </plurals>
+    <plurals name="every_minutes">
+        <item quantity="one">Every minute</item>
+        <item quantity="other">Every %1$s minutes</item>
+    </plurals>
+    <string name="sit_exact">Bells cannot ring on time: exact alarms are switched off for Practice</string>
+    <string name="sit_exact_allow">Allow them</string>
+    <string name="sit_start">Start</string>
+
+    <!-- ============================================================ -->
+    <!-- While sitting: white text on a dark screen -->
+
+    <string name="session_warming">Settling in</string>
+    <string name="session_first_bell">The bell rings at %1$s</string>
+    <string name="session_sitting">Sitting</string>
+    <string name="session_until">Until %1$s</string>
+    <string name="session_hold">Hold anywhere to end</string>
+
+    <!-- The notification while a sitting runs -->
+    <string name="channel_sitting">While sitting</string>
+    <string name="notify_warming">Settling in. The first bell is at %1$s.</string>
+    <string name="notify_sitting">Sitting until %1$s</string>
+    <string name="notify_ended">The sitting is over</string>
+
+    <!-- After a sitting -->
+    <!-- "07:20 to 07:40" -->
+    <string name="end_span">%1$s to %2$s</string>
+    <string name="end_note">Note</string>
+    <string name="end_note_hint">A line about it, if you like</string>
+
+    <!-- ============================================================ -->
+    <!-- Today tab and habits -->
+
+    <!-- Under a habit meant some days a week: "2 of 3 this week" -->
+    <string name="today_of_week">%1$s of %2$s this week</string>
+    <string name="today_add">Add a habit</string>
+    <plurals name="streak_days">
+        <item quantity="one">%1$s day in a row</item>
+        <item quantity="other">%1$s days in a row</item>
+    </plurals>
+    <plurals name="streak_weeks">
+        <item quantity="one">%1$s week in a row</item>
+        <item quantity="other">%1$s weeks in a row</item>
+    </plurals>
+    <string name="habit_new">A new habit</string>
+    <string name="habit_edit">Change the habit</string>
+    <string name="habit_name">Name</string>
+    <string name="habit_name_hint">Walk, read, stretch</string>
+    <string name="habit_daily">Every day</string>
+    <string name="habit_weekly">Some days a week</string>
+    <string name="habit_times_a_week">%1$s times a week</string>
+    <string name="habit_delete">Delete this habit</string>
+    <string name="habit_delete_armed">Delete — its ticks go too; tap again</string>
+
+    <!-- ============================================================ -->
+    <!-- A habit's statistics -->
+
+    <!-- Under the big streak figures: "days in a row now", "days at most" -->
+    <string name="stats_current">%1$s in a row now</string>
+    <string name="stats_longest">%1$s in a row at most</string>
+    <plurals name="days_word">
+        <item quantity="one">day</item>
+        <item quantity="other">days</item>
+    </plurals>
+    <plurals name="weeks_word">
+        <item quantity="one">week</item>
+        <item quantity="other">weeks</item>
+    </plurals>
+    <!-- Under the streaks of a habit meant some days a week -->
+    <plurals name="times_a_week_goal">
+        <item quantity="one">A week counts when it is done once.</item>
+        <item quantity="other">A week counts when it is done %1$s times.</item>
+    </plurals>
+    <string name="stats_totals">Totals</string>
+    <string name="stats_this_week">This week</string>
+    <string name="stats_this_month">This month</string>
+    <string name="stats_all_time">All time</string>
+    <plurals name="days_count">
+        <item quantity="one">%1$s day</item>
+        <item quantity="other">%1$s days</item>
+    </plurals>
+    <plurals name="sittings_count">
+        <item quantity="one">%1$s sitting</item>
+        <item quantity="other">%1$s sittings</item>
+    </plurals>
+    <!-- "4 sittings, 80 min" -->
+    <string name="stats_sittings_minutes">%1$s, %2$s</string>
+    <string name="stats_tap_a_day">A press on a day ticks it, or takes the tick off.</string>
+    <string name="stats_minutes_per_day">Minutes a day</string>
+
+    <!-- ============================================================ -->
+    <!-- Log tab -->
+
+    <string name="log_empty">Nothing sat yet. Each sitting is written here when it ends.</string>
+    <!-- In the dialog for one sitting: "Planned 20 min" -->
+    <string name="log_planned">Planned %1$s</string>
+    <string name="log_minutes_sat">Minutes sat</string>
+    <string name="log_delete">Delete</string>
+    <string name="log_delete_armed">Delete — tap again</string>
+
+    <!-- ============================================================ -->
+    <!-- Settings -->
+
+    <string name="settings_title">Settings</string>
+    <!-- On a Kompakt: DuraSpeed shuts apps down, which cancels the bells. Pressing it opens DuraSpeed's App info, where Open shows its list -->
+    <string name="settings_duraspeed">The phone\'s DuraSpeed setting can shut Practice down, and the bells with it. Open DuraSpeed, tap Open, and switch Practice on.</string>
+    <string name="settings_duraspeed_open">Open DuraSpeed</string>
+    <!-- Under the DuraSpeed row: pressing it says Practice is now switched on there -->
+    <string name="settings_duraspeed_done">It\'s switched on</string>
+    <string name="settings_try_bell">Try the bell</string>
+    <string name="settings_bell_volume">It rings at the phone\'s alarm volume</string>
+    <string name="settings_bell_ringing">Ringing</string>
+    <string name="settings_dnd">Do not disturb while sitting</string>
+    <string name="settings_dnd_note">Alarms only, so the bells still ring</string>
+    <string name="settings_backup_heading">Backup</string>
+    <string name="settings_save_backup">Save a backup</string>
+    <string name="settings_save_backup_note">Habits, ticks and the log, as one file where you choose</string>
+    <string name="settings_restore">Restore from a backup</string>
+    <string name="settings_restore_armed">Restore — this replaces everything here; tap again</string>
+    <string name="backup_saved">Saved.</string>
+    <string name="backup_not_saved">The backup could not be written there.</string>
+    <string name="restore_done">Restored.</string>
+    <string name="restore_not_ours">That file is not a Practice backup. Nothing was changed.</string>
+
+    <!-- ============================================================ -->
+    <!-- About -->
+
+    <string name="about_title">Practice %1$s</string>
+    <string name="about_what">A meditation timer and a habit tracker. What you log stays on the phone: the app has no internet permission.</string>
+    <string name="about_licence">GNU General Public License v3</string>
+    <string name="about_icons">Icons from Material Symbols, Apache 2.0</string>
+    <string name="about_sound">Bowl sound made for this app, GPL v3</string>
+    <string name="about_feed_the_llamas">feed the llamas</string>
+    <string name="about_no_browser">There is no browser on this phone to open that with.</string>
+    <string name="about_close">Close</string>
+    <string name="list_jump_setting">Letters and page dots</string>
+    <string name="list_jump_shown">Shown</string>
+    <string name="list_jump_hidden">Hidden</string>
+</resources>
