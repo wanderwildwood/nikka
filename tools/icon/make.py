@@ -144,6 +144,15 @@ def sheet():
     im.save('sheet.png')
 
 
+def grown(parts, k):
+    """The glyph scaled about its own centre; the stroke stays SW, the ring is not touched."""
+    xs = [x for _, p in parts for x, _ in p]; ys = [y for _, p in parts for _, y in p]
+    cx, cy = (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2
+    return [(kind, [(cx + (x - cx) * k, cy + (y - cy) * k) for x, y in p]) for kind, p in parts]
+
+
 if __name__ == '__main__':
-    write('bowl', cand_bowl())
+    # 2026-10-21: David found the bowl and mallet small inside the square; nudged 10%, still
+    # inside the range of Mudita's own stock icons (about 45-54% of the square, longest side).
+    write('bowl', grown(cand_bowl(), 1.10))
     print('bowl', f'ink48 {ink("bowl-48.png"):.3f}')
