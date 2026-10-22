@@ -117,7 +117,7 @@ fun habitName(h: Habit): String = if (h.builtin) stringResource(R.string.meditat
 
 /** A new habit, or a change to one: its name, and every day or some days a week. */
 @Composable
-fun HabitDialog(habit: Habit?, onSave: (String, Int) -> Unit, onDismiss: () -> Unit) {
+fun HabitDialog(habit: Habit?, onSave: (String, Int) -> Unit, onDismiss: () -> Unit, onDelete: (() -> Unit)? = null) {
     var name by remember { mutableStateOf(habit?.name.orEmpty()) }
     var daily by remember { mutableStateOf(habit?.daily ?: true) }
     var perWeek by remember { mutableStateOf(habit?.perWeek?.takeIf { it < 7 } ?: 3) }
@@ -157,6 +157,12 @@ fun HabitDialog(habit: Habit?, onSave: (String, Int) -> Unit, onDismiss: () -> U
             }
         }
         DialogButton(stringResource(R.string.cancel), onClick = onDismiss)
+        if (habit != null && !habit.builtin && onDelete != null) {
+            ArmedRow(stringResource(R.string.habit_delete), stringResource(R.string.habit_delete_armed)) {
+                onDelete()
+                onDismiss()
+            }
+        }
     }
 }
 
