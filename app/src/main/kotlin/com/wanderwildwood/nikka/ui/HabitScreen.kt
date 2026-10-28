@@ -80,60 +80,58 @@ fun HabitScreen(c: AppState, id: Long, onBack: () -> Unit) {
         },
     ) { padding ->
         val state = rememberLazyListState()
-        ListJumpBox(state, ListJump.Pages, Modifier.padding(padding)) {
-            PagedColumn(Modifier.fillMaxSize().padding(horizontal = 20.dp), state = state) {
-                item(key = "streaks") {
-                    Spacer(Modifier.height(12.dp))
-                    Row(Modifier.fillMaxWidth()) {
-                        Figure(s.streak.toString(), streakWords(s.streak, s.inWeeks, current = true), Modifier.weight(1f), "streak")
-                        Figure(s.longest.toString(), streakWords(s.longest, s.inWeeks, current = false), Modifier.weight(1f), "longest")
-                    }
-                    if (!habit.daily) {
-                        TextMMD(
-                            text = pluralStringResource(R.plurals.times_a_week_goal, habit.perWeek, habit.perWeek.toString()),
-                            style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier.padding(top = 8.dp),
-                        )
-                    }
+        PagedColumn(Modifier.padding(padding).fillMaxSize().padding(horizontal = 20.dp), state = state) {
+            item(key = "streaks") {
+                Spacer(Modifier.height(12.dp))
+                Row(Modifier.fillMaxWidth()) {
+                    Figure(s.streak.toString(), streakWords(s.streak, s.inWeeks, current = true), Modifier.weight(1f), "streak")
+                    Figure(s.longest.toString(), streakWords(s.longest, s.inWeeks, current = false), Modifier.weight(1f), "longest")
                 }
-                item(key = "totals") {
-                    Heading(stringResource(R.string.stats_totals))
-                    val week = Stats.startOfWeek(c.today, c.firstDay)
-                    val monthStart = c.today.withDayOfMonth(1)
-                    TotalRow(stringResource(R.string.stats_this_week), s.thisWeek, if (habit.builtin) Stats.sat(sessions, zone, week, c.today) else null)
-                    TotalRow(stringResource(R.string.stats_this_month), s.thisMonth, if (habit.builtin) Stats.sat(sessions, zone, monthStart, c.today) else null)
-                    TotalRow(stringResource(R.string.stats_all_time), s.allTime, if (habit.builtin) Stats.sat(sessions, zone, LocalDate.MIN, c.today) else null)
-                }
-                item(key = "grid") {
-                    Spacer(Modifier.height(12.dp))
-                    MonthGrid(
-                        month = month,
-                        today = c.today,
-                        firstDay = c.firstDay,
-                        done = days,
-                        onMonth = { month = it },
-                        onDay = if (habit.builtin) null else { d -> c.store.setTick(habit.id, d, d !in days) },
+                if (!habit.daily) {
+                    TextMMD(
+                        text = pluralStringResource(R.plurals.times_a_week_goal, habit.perWeek, habit.perWeek.toString()),
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(top = 8.dp),
                     )
-                    if (!habit.builtin) {
-                        TextMMD(text = stringResource(R.string.stats_tap_a_day), style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 6.dp))
-                    }
                 }
-                if (habit.builtin) {
-                    item(key = "minutes") {
-                        Heading(stringResource(R.string.stats_minutes_per_day), Modifier.padding(top = 8.dp))
-                        val byDay = Stats.secondsByDay(sessions, zone)
-                        val week = (6 downTo 0).map { c.today.minusDays(it.toLong()) }
-                        val most = week.maxOf { byDay[it] ?: 0 }.coerceAtLeast(60)
-                        for (d in week) MinutesRow(Words.shortDay(d), byDay[d] ?: 0, most)
-                    }
-                }
+            }
+            item(key = "totals") {
+                Heading(stringResource(R.string.stats_totals))
+                val week = Stats.startOfWeek(c.today, c.firstDay)
+                val monthStart = c.today.withDayOfMonth(1)
+                TotalRow(stringResource(R.string.stats_this_week), s.thisWeek, if (habit.builtin) Stats.sat(sessions, zone, week, c.today) else null)
+                TotalRow(stringResource(R.string.stats_this_month), s.thisMonth, if (habit.builtin) Stats.sat(sessions, zone, monthStart, c.today) else null)
+                TotalRow(stringResource(R.string.stats_all_time), s.allTime, if (habit.builtin) Stats.sat(sessions, zone, LocalDate.MIN, c.today) else null)
+            }
+            item(key = "grid") {
+                Spacer(Modifier.height(12.dp))
+                MonthGrid(
+                    month = month,
+                    today = c.today,
+                    firstDay = c.firstDay,
+                    done = days,
+                    onMonth = { month = it },
+                    onDay = if (habit.builtin) null else { d -> c.store.setTick(habit.id, d, d !in days) },
+                )
                 if (!habit.builtin) {
-                    item(key = "delete") {
-                        Spacer(Modifier.height(16.dp))
-                        ArmedRow(stringResource(R.string.habit_delete), stringResource(R.string.habit_delete_armed)) {
-                            c.store.deleteHabit(habit.id)
-                            onBack()
-                        }
+                    TextMMD(text = stringResource(R.string.stats_tap_a_day), style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 6.dp))
+                }
+            }
+            if (habit.builtin) {
+                item(key = "minutes") {
+                    Heading(stringResource(R.string.stats_minutes_per_day), Modifier.padding(top = 8.dp))
+                    val byDay = Stats.secondsByDay(sessions, zone)
+                    val week = (6 downTo 0).map { c.today.minusDays(it.toLong()) }
+                    val most = week.maxOf { byDay[it] ?: 0 }.coerceAtLeast(60)
+                    for (d in week) MinutesRow(Words.shortDay(d), byDay[d] ?: 0, most)
+                }
+            }
+            if (!habit.builtin) {
+                item(key = "delete") {
+                    Spacer(Modifier.height(16.dp))
+                    ArmedRow(stringResource(R.string.habit_delete), stringResource(R.string.habit_delete_armed)) {
+                        c.store.deleteHabit(habit.id)
+                        onBack()
                     }
                 }
             }

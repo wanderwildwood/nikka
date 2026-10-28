@@ -89,55 +89,49 @@ fun SettingsScreen(c: AppState, onBack: () -> Unit) {
         },
     ) { padding ->
         val state = rememberLazyListState()
-        ListJumpBox(state, ListJump.Pages, Modifier.padding(padding)) {
-            PagedColumn(Modifier.fillMaxSize().padding(horizontal = 20.dp), state = state) {
-                item { Spacer(Modifier.height(8.dp)) }
-                // Only while it is still to do: a row for something already done is furniture.
-                if (duraSpeedRisk) {
-                    item(key = "dura") {
-                        SettingRow(stringResource(R.string.settings_duraspeed), stringResource(R.string.settings_duraspeed_open)) {
-                            open(DuraSpeed.appInfo())
-                        }
-                    }
-                    item(key = "dura_done") {
-                        SettingRow(stringResource(R.string.settings_duraspeed_done), null) {
-                            prefs.duraSpeedAllowed = true
-                            v++
-                        }
+        PagedColumn(Modifier.padding(padding).fillMaxSize().padding(horizontal = 20.dp), state = state) {
+            item { Spacer(Modifier.height(8.dp)) }
+            // Only while it is still to do: a row for something already done is furniture.
+            if (duraSpeedRisk) {
+                item(key = "dura") {
+                    SettingRow(stringResource(R.string.settings_duraspeed), stringResource(R.string.settings_duraspeed_open)) {
+                        open(DuraSpeed.appInfo())
                     }
                 }
-                item(key = "bell") {
-                    SettingRow(
-                        stringResource(R.string.settings_try_bell),
-                        stringResource(if (ringing) R.string.settings_bell_ringing else R.string.settings_bell_volume),
-                    ) {
-                        if (!ringing) {
-                            ringing = true
-                            Bell.play(context, end = false) { ringing = false }
-                        }
-                    }
-                }
-                item(key = "dnd") {
-                    SwitchRow(stringResource(R.string.settings_dnd), dnd, stringResource(R.string.settings_dnd_note)) { on ->
-                        prefs.doNotDisturb = on
-                        if (on && !policy) open(Intent(AndroidSettings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
+                item(key = "dura_done") {
+                    SettingRow(stringResource(R.string.settings_duraspeed_done), null) {
+                        prefs.duraSpeedAllowed = true
                         v++
                     }
                 }
-                item(key = "listjump") {
-                    val jumpShown by rememberListJumpShown()
-                    SwitchRow(stringResource(R.string.list_jump_setting), jumpShown) { ListJumpPrefs.setShown(context, it) }
-                }
-                item(key = "backup") { Heading(stringResource(R.string.settings_backup_heading)) }
-                item(key = "save") {
-                    SettingRow(stringResource(R.string.settings_save_backup), stringResource(R.string.settings_save_backup_note)) {
-                        save.launch("practice-${LocalDate.now()}.json")
+            }
+            item(key = "bell") {
+                SettingRow(
+                    stringResource(R.string.settings_try_bell),
+                    stringResource(if (ringing) R.string.settings_bell_ringing else R.string.settings_bell_volume),
+                ) {
+                    if (!ringing) {
+                        ringing = true
+                        Bell.play(context, end = false) { ringing = false }
                     }
                 }
-                item(key = "restore") {
-                    ArmedRow(stringResource(R.string.settings_restore), stringResource(R.string.settings_restore_armed)) {
-                        restore.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
-                    }
+            }
+            item(key = "dnd") {
+                SwitchRow(stringResource(R.string.settings_dnd), dnd, stringResource(R.string.settings_dnd_note)) { on ->
+                    prefs.doNotDisturb = on
+                    if (on && !policy) open(Intent(AndroidSettings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
+                    v++
+                }
+            }
+            item(key = "backup") { Heading(stringResource(R.string.settings_backup_heading)) }
+            item(key = "save") {
+                SettingRow(stringResource(R.string.settings_save_backup), stringResource(R.string.settings_save_backup_note)) {
+                    save.launch("practice-${LocalDate.now()}.json")
+                }
+            }
+            item(key = "restore") {
+                ArmedRow(stringResource(R.string.settings_restore), stringResource(R.string.settings_restore_armed)) {
+                    restore.launch(arrayOf("application/json", "text/plain", "application/octet-stream"))
                 }
             }
         }

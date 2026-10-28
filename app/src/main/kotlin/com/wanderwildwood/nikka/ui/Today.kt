@@ -54,58 +54,56 @@ fun TodayTab(c: AppState, onHabit: (Long) -> Unit, onSit: () -> Unit) {
     }
     var adding by remember { mutableStateOf(false) }
     val state = rememberLazyListState()
-    ListJumpBox(state, ListJump.Pages) {
-        PagedColumn(Modifier.fillMaxSize(), state = state) {
-            item(key = "day") {
-                Heading(Words.longDay(c.today), Modifier.padding(horizontal = 20.dp))
-            }
-            for ((h, done, s) in rows) {
-                item(key = h.id) {
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .clickable { onHabit(h.id) }
-                            .testTag("habit_${h.id}")
-                            .padding(start = 20.dp, top = 12.dp, bottom = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Column(Modifier.weight(1f)) {
-                            TextMMD(text = habitName(h), style = MaterialTheme.typography.titleMedium)
-                            val sub = when {
-                                !h.daily -> stringResource(R.string.today_of_week, s.thisWeek.toString(), h.perWeek.toString())
-                                s.streak > 1 -> Words.streak(context, s.streak, weeks = false)
-                                else -> null
-                            }
-                            if (sub != null) TextMMD(text = sub, style = MaterialTheme.typography.labelSmall)
-                        }
-                        val press = { if (h.builtin) onSit() else c.store.setTick(h.id, c.today, !done) }
-                        // CheckboxMMD takes every press on itself even with no handler, so the
-                        // handler goes to it as well as to the margin round it.
-                        Box(
-                            Modifier
-                                .size(56.dp)
-                                .clickable(onClick = press)
-                                .testTag("tick_${h.id}"),
-                            contentAlignment = Alignment.Center,
-                        ) { CheckboxMMD(checked = done, onCheckedChange = { press() }) }
-                        Spacer(Modifier.width(8.dp))
-                    }
-                    HorizontalDividerMMD(thickness = 1.dp)
-                }
-            }
-            item(key = "add") {
+    PagedColumn(Modifier.fillMaxSize(), state = state) {
+        item(key = "day") {
+            Heading(Words.longDay(c.today), Modifier.padding(horizontal = 20.dp))
+        }
+        for ((h, done, s) in rows) {
+            item(key = h.id) {
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .clickable { adding = true }
-                        .testTag("add_habit")
-                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                        .clickable { onHabit(h.id) }
+                        .testTag("habit_${h.id}")
+                        .padding(start = 20.dp, top = 12.dp, bottom = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(Icons.Add, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(22.dp))
-                    Spacer(Modifier.width(10.dp))
-                    TextMMD(text = stringResource(R.string.today_add), style = MaterialTheme.typography.bodyMedium)
+                    Column(Modifier.weight(1f)) {
+                        TextMMD(text = habitName(h), style = MaterialTheme.typography.titleMedium)
+                        val sub = when {
+                            !h.daily -> stringResource(R.string.today_of_week, s.thisWeek.toString(), h.perWeek.toString())
+                            s.streak > 1 -> Words.streak(context, s.streak, weeks = false)
+                            else -> null
+                        }
+                        if (sub != null) TextMMD(text = sub, style = MaterialTheme.typography.labelSmall)
+                    }
+                    val press = { if (h.builtin) onSit() else c.store.setTick(h.id, c.today, !done) }
+                    // CheckboxMMD takes every press on itself even with no handler, so the
+                    // handler goes to it as well as to the margin round it.
+                    Box(
+                        Modifier
+                            .size(56.dp)
+                            .clickable(onClick = press)
+                            .testTag("tick_${h.id}"),
+                        contentAlignment = Alignment.Center,
+                    ) { CheckboxMMD(checked = done, onCheckedChange = { press() }) }
+                    Spacer(Modifier.width(8.dp))
                 }
+                HorizontalDividerMMD(thickness = 1.dp)
+            }
+        }
+        item(key = "add") {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { adding = true }
+                    .testTag("add_habit")
+                    .padding(horizontal = 20.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(Icons.Add, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(22.dp))
+                Spacer(Modifier.width(10.dp))
+                TextMMD(text = stringResource(R.string.today_add), style = MaterialTheme.typography.bodyMedium)
             }
         }
     }

@@ -40,23 +40,21 @@ fun LogTab(c: AppState) {
         return
     }
     val state = rememberLazyListState()
-    ListJumpBox(state, ListJump.Pages) {
-        PagedColumn(Modifier.fillMaxSize(), state = state) {
-            for (s in sessions) {
-                item(key = s.id) {
-                    Column(
-                        Modifier
-                            .fillMaxWidth()
-                            .clickable { open = s }
-                            .testTag("session_${s.id}")
-                            .padding(horizontal = 20.dp, vertical = 12.dp),
-                    ) {
-                        TextMMD(text = Words.whenSat(context, s.start), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
-                        TextMMD(text = Words.sat(context, s), style = MaterialTheme.typography.bodyMedium)
-                        if (s.note.isNotBlank()) TextMMD(text = s.note, style = MaterialTheme.typography.labelSmall)
-                    }
-                    HorizontalDividerMMD(thickness = 1.dp)
+    PagedColumn(Modifier.fillMaxSize(), state = state) {
+        for (s in sessions) {
+            item(key = s.id) {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable { open = s }
+                        .testTag("session_${s.id}")
+                        .padding(horizontal = 20.dp, vertical = 12.dp),
+                ) {
+                    TextMMD(text = Words.whenSat(context, s.start), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                    TextMMD(text = Words.sat(context, s), style = MaterialTheme.typography.bodyMedium)
+                    if (s.note.isNotBlank()) TextMMD(text = s.note, style = MaterialTheme.typography.labelSmall)
                 }
+                HorizontalDividerMMD(thickness = 1.dp)
             }
         }
     }
