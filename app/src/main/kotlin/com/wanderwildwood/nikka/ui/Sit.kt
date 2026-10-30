@@ -116,7 +116,7 @@ fun SitTab(c: AppState) {
                         Intent(AndroidSettings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + context.packageName))
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                     )
-                }
+                }.onFailure { android.widget.Toast.makeText(context, context.getString(R.string.cannot_open), android.widget.Toast.LENGTH_LONG).show() }
             }
         }
         Spacer(Modifier.weight(1f))
@@ -159,13 +159,17 @@ private fun intervalName(min: Int): String =
 private fun OtherLengthDialog(minutes: Int, onSet: (Int) -> Unit, onDismiss: () -> Unit) {
     // Empty, with the length now as its hint: typing replaces it rather than adding to it.
     var text by remember { mutableStateOf("") }
+    var tried by remember { mutableStateOf(false) }
     val value = (text.trim().toIntOrNull() ?: minutes).takeIf { it in 1..MAX_MINUTES }
     EInkDialog(onDismiss = onDismiss) {
         TextMMD(text = stringResource(R.string.sit_other_title), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
         Field(stringResource(R.string.sit_other_minutes), text, { text = it.filter(Char::isDigit).take(3) }, hint = minutes.toString(), number = true)
+        if (tried && value == null) {
+            TextMMD(text = stringResource(R.string.sit_other_range, MAX_MINUTES), style = MaterialTheme.typography.labelSmall)
+        }
         Spacer(Modifier.height(8.dp))
         DialogButton(stringResource(R.string.set), filled = true) {
-            if (value != null) { onSet(value); onDismiss() }
+            if (value != null) { onSet(value); onDismiss() } else tried = true
         }
         DialogButton(stringResource(R.string.cancel), onClick = onDismiss)
     }

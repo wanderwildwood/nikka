@@ -67,7 +67,11 @@ fun SettingsScreen(c: AppState, onBack: () -> Unit) {
         runCatching {
             context.contentResolver.openOutputStream(uri, "wt")!!.use { it.write(Backup.write(c.store).toByteArray()) }
         }.onSuccess { Toast.makeText(context, context.getString(R.string.backup_saved), Toast.LENGTH_SHORT).show() }
-            .onFailure { Toast.makeText(context, context.getString(R.string.backup_not_saved), Toast.LENGTH_LONG).show() }
+            .onFailure {
+                // The picker has already made an empty file; do not leave it behind.
+                runCatching { android.provider.DocumentsContract.deleteDocument(context.contentResolver, uri) }
+                Toast.makeText(context, context.getString(R.string.backup_not_saved), Toast.LENGTH_LONG).show()
+            }
     }
     val restore = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
@@ -99,7 +103,7 @@ fun SettingsScreen(c: AppState, onBack: () -> Unit) {
                     }
                 }
                 item(key = "dura_done") {
-                    SettingRow(stringResource(R.string.settings_duraspeed_done), null) {
+                    SettingRow(stringResource(R.string.settings_duraspeed_done), stringResource(R.string.settings_duraspeed_done_note)) {
                         prefs.duraSpeedAllowed = true
                         v++
                     }

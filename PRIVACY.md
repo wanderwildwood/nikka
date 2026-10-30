@@ -20,4 +20,4 @@ for: Android's support library adds it to every app built with it
 (`DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`), so that the app's own internal messages can reach
 only the app itself.
 
-The About dialog's last line opens a web address in your browser, and only when you press it.
+The About dialog's links (source code, the author's site, the donation page) open a web address in your browser, and only when you press them. The About dialog also holds the full Privacy and Terms text and the licences.

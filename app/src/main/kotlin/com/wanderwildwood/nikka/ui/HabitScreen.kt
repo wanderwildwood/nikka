@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,6 +27,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -226,7 +227,7 @@ fun MonthGrid(
                 Spacer(Modifier.width(48.dp))
             }
         }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(GAP)) {
+        Row(Modifier.fillMaxWidth()) {
             for (d in Stats.weekDays(firstDay)) {
                 TextMMD(
                     text = d.getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(2),
@@ -237,9 +238,9 @@ fun MonthGrid(
             }
         }
         for (week in Stats.monthGrid(month, firstDay)) {
-            Row(Modifier.fillMaxWidth().padding(vertical = GAP / 2), horizontalArrangement = Arrangement.spacedBy(GAP)) {
+            Row(Modifier.fillMaxWidth()) {
                 for (day in week) {
-                    Box(Modifier.weight(1f).aspectRatio(1f)) {
+                    Box(Modifier.weight(1f).height(48.dp)) {
                         if (day != null) DayCell(day, today, day in done, onDay)
                     }
                 }
@@ -248,31 +249,40 @@ fun MonthGrid(
     }
 }
 
-private val GAP = 6.dp
 
 @Composable
 private fun DayCell(day: LocalDate, today: LocalDate, done: Boolean, onDay: ((LocalDate) -> Unit)?) {
     val shape = RoundedCornerShape(4.dp)
     val future = day.isAfter(today)
+    val state = stringResource(if (done) R.string.day_done else R.string.day_not_done)
+    // The whole 48 dp cell is the target; the square drawn inside it is inset so squares keep their gap.
     Box(
         Modifier
             .fillMaxSize()
-            .then(
-                when {
-                    future -> Modifier
-                    done -> Modifier.background(Color.Black, shape)
-                    else -> Modifier.border(if (day == today) 3.dp else 1.5.dp, Color.Black, shape)
-                },
-            )
-            .then(if (done && day == today) Modifier.border(3.dp, Color.Black, shape) else Modifier)
             .let { if (onDay != null && !future) it.clickable { onDay(day) } else it }
-            .testTag("day_$day"),
+            .semantics { if (!future) stateDescription = state }
+            .testTag("day_$day")
+            .padding(3.dp),
         contentAlignment = Alignment.Center,
     ) {
-        TextMMD(
-            text = day.dayOfMonth.toString(),
-            style = MaterialTheme.typography.labelSmall,
-            color = if (done) Color.White else Color.Black,
-        )
+        Box(
+            Modifier
+                .fillMaxSize()
+                .then(
+                    when {
+                        future -> Modifier
+                        done -> Modifier.background(Color.Black, shape)
+                        else -> Modifier.border(if (day == today) 3.dp else 1.5.dp, Color.Black, shape)
+                    },
+                )
+                .then(if (done && day == today) Modifier.border(3.dp, Color.Black, shape) else Modifier),
+            contentAlignment = Alignment.Center,
+        ) {
+            TextMMD(
+                text = day.dayOfMonth.toString(),
+                style = MaterialTheme.typography.labelSmall,
+                color = if (done) Color.White else Color.Black,
+            )
+        }
     }
 }

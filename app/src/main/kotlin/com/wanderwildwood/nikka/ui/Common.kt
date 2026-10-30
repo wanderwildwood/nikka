@@ -100,7 +100,7 @@ fun ChoiceRow(title: String, chosen: Boolean, onClick: () -> Unit) {
 
 /**
  * A press that asks once, in its own face: the first press arms it and changes what it says,
- * the second does it. It disarms itself after four seconds, so a stray press does not leave
+ * the second does it. It disarms itself after six seconds, so a stray press does not leave
  * a live trigger for whoever picks the phone up next.
  */
 @Composable
@@ -108,7 +108,7 @@ fun rememberArmed(): Armed {
     val a = remember { Armed() }
     LaunchedEffect(a.on) {
         if (!a.on) return@LaunchedEffect
-        delay(4000)
+        delay(ARM_MS)
         a.on = false
     }
     return a
@@ -207,3 +207,6 @@ fun Field(
         )
     }
 }
+
+/** How long a press that asks once stays armed. */
+const val ARM_MS = 6000L

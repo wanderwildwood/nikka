@@ -119,6 +119,7 @@ fun HabitDialog(habit: Habit?, onSave: (String, Int) -> Unit, onDismiss: () -> U
     var name by remember { mutableStateOf(habit?.name.orEmpty()) }
     var daily by remember { mutableStateOf(habit?.daily ?: true) }
     var perWeek by remember { mutableStateOf(habit?.perWeek?.takeIf { it < 7 } ?: 3) }
+    var tried by remember { mutableStateOf(false) }
     EInkDialog(onDismiss = onDismiss) {
         TextMMD(
             text = when {
@@ -131,6 +132,9 @@ fun HabitDialog(habit: Habit?, onSave: (String, Int) -> Unit, onDismiss: () -> U
         )
         if (habit?.builtin != true) {
             Field(stringResource(R.string.habit_name), name, { name = it.replace('\n', ' ').take(60) }, hint = stringResource(R.string.habit_name_hint))
+        }
+        if (tried && name.isBlank() && habit?.builtin != true) {
+            TextMMD(text = stringResource(R.string.habit_name_needed), style = MaterialTheme.typography.labelSmall)
         }
         Spacer(Modifier.height(8.dp))
         ChoiceRow(stringResource(R.string.habit_daily), daily) { daily = true }
@@ -152,7 +156,7 @@ fun HabitDialog(habit: Habit?, onSave: (String, Int) -> Unit, onDismiss: () -> U
             if (ok) {
                 onSave(name.trim(), if (daily) 7 else perWeek)
                 onDismiss()
-            }
+            } else tried = true
         }
         DialogButton(stringResource(R.string.cancel), onClick = onDismiss)
         if (habit != null && !habit.builtin && onDelete != null) {
