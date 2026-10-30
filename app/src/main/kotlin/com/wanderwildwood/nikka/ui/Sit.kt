@@ -138,25 +138,10 @@ fun SitTab(c: AppState) {
     }
 }
 
-/** A choice drawn as the tabs are: the chosen one a black stone, the others outlined. */
+/** A choice: the chosen one a black stone, the others outlined (the house button). */
 @Composable
 private fun Stone(label: String, chosen: Boolean, modifier: Modifier, onClick: () -> Unit) {
-    val shape = RoundedCornerShape(4.dp)
-    Box(
-        modifier = modifier
-            .height(48.dp)
-            .then(if (chosen) Modifier.background(Color.Black, shape) else Modifier.border(1.dp, Color.Black, shape))
-            .clickable(onClick = onClick)
-            .testTag("preset_$label"),
-        contentAlignment = Alignment.Center,
-    ) {
-        TextMMD(
-            text = label,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = if (chosen) Color.White else Color.Black,
-        )
-    }
+    HouseButton(label, onClick, modifier.testTag("preset_$label"), on = chosen)
 }
 
 @Composable
