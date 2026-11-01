@@ -81,7 +81,7 @@ fun HabitScreen(c: AppState, id: Long, onBack: () -> Unit) {
         },
     ) { padding ->
         val state = rememberLazyListState()
-        PagedColumn(Modifier.padding(padding).fillMaxSize().padding(horizontal = 20.dp), state = state) {
+        PagedColumn(Modifier.padding(padding).fillMaxSize(), state = state, contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 20.dp, end = 12.dp)) {
             item(key = "streaks") {
                 Spacer(Modifier.height(12.dp))
                 Row(Modifier.fillMaxWidth()) {

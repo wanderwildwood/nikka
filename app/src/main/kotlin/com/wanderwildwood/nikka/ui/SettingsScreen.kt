@@ -93,7 +93,7 @@ fun SettingsScreen(c: AppState, onBack: () -> Unit) {
         },
     ) { padding ->
         val state = rememberLazyListState()
-        PagedColumn(Modifier.padding(padding).fillMaxSize().padding(horizontal = 20.dp), state = state) {
+        PagedColumn(Modifier.padding(padding).fillMaxSize(), state = state, contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 20.dp, end = 12.dp)) {
             item { Spacer(Modifier.height(8.dp)) }
             // Only while it is still to do: a row for something already done is furniture.
             if (duraSpeedRisk) {
