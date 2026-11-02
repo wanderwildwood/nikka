@@ -185,9 +185,8 @@
     <string name="about_title">Practice %1$s</string>
     <string name="about_what">A meditation timer and a habit tracker. What you log stays on the phone: the app has no internet permission.</string>
     <string name="about_sound">Bowl sound made for this app, GPL v3</string>
-    <string name="about_feed_the_llamas">feed the llamas</string>
+    <string name="about_feed_the_llamas">Feed the llamas</string>
     <string name="about_close">Close</string>
-    <string name="about_licences">Licences</string>
     <string name="licences_title">Licences</string>
     <string name="licences_source_head">Source code</string>
     <string name="licences_no_text">%s needs no licence text here.</string>
