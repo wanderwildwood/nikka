@@ -73,7 +73,7 @@ app up.
 ## One step on a Kompakt
 
 The Kompakt's DuraSpeed setting can shut down apps a few minutes after the screen goes dark,
-and an app shut down that way has its alarms cancelled. A sitting runs as a foreground service
+and an app shut down that way has its alarms canceled. A sitting runs as a foreground service
 for its whole length, but to be sure of the bells, Settings has a row on a Kompakt: **Open
 DuraSpeed**, tap **Open** there, switch Practice on in the list, and press **It's switched
 on**. If DuraSpeed stops the app again later, the row comes back.
@@ -84,16 +84,16 @@ on**. If DuraSpeed stops the app again later, the row comes back.
   [PRIVACY.md](PRIVACY.md).
 - **The phone's alarm icon shows while a sitting runs**: the end bell is set as an alarm clock,
   the kind of alarm that rings on time whatever the phone is saving power for.
-- **No charts that need colour.** Everything is black on white: filled and outlined squares,
+- **No charts that need color.** Everything is black on white: filled and outlined squares,
   and black bars.
 
 ## The bell
 
-The bowl is synthesised for this app by [`tools/make-bowl.py`](tools/make-bowl.py): four
+The bowl is synthesized for this app by [`tools/make-bowl.py`](tools/make-bowl.py): four
 partials of a singing bowl, each a pair of tones a fraction of a hertz apart so it shimmers as
 a real bowl does, each dying away at its own rate, struck softly. There is no recording, so
-there is no one else's sound to credit or licence; it is part of this program and under its
-licence.
+there is no one else's sound to credit or license; it is part of this program and under its
+license.
 
 ## Building
 
@@ -120,7 +120,7 @@ For updates without doing this by hand, add this repository to
 
     https://github.com/wanderwildwood/nikka
 
-## Licence
+## License
 
 GPL-3.0-only. See [LICENSE](LICENSE).
 
@@ -137,4 +137,4 @@ You should have received a copy of the GNU General Public License along with thi
 not, see <https://www.gnu.org/licenses/>.
 
 Icons are from Material Symbols, Apache 2.0. The bowl sound is made by this program's own
-script and is under its licence.
+script and is under its license.
