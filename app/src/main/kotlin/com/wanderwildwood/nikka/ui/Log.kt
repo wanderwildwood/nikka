@@ -54,7 +54,7 @@ fun LogTab(c: AppState) {
                     TextMMD(text = Words.sat(context, s), style = MaterialTheme.typography.bodyMedium)
                     if (s.note.isNotBlank()) TextMMD(text = s.note, style = MaterialTheme.typography.labelSmall)
                 }
-                HorizontalDividerMMD(thickness = 1.dp)
+                DottedRule(start = 20.dp, end = 20.dp)
             }
         }
     }

@@ -89,7 +89,7 @@ fun TodayTab(c: AppState, onHabit: (Long) -> Unit, onSit: () -> Unit) {
                     ) { CheckboxMMD(checked = done, onCheckedChange = { press() }) }
                     Spacer(Modifier.width(8.dp))
                 }
-                HorizontalDividerMMD(thickness = 1.dp)
+                DottedRule(start = 20.dp, end = 20.dp)
             }
         }
         item(key = "add") {
