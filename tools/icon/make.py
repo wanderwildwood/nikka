@@ -152,7 +152,7 @@ def grown(parts, k):
 
 
 if __name__ == '__main__':
-    # 2026-10-21: David found the bowl and mallet small inside the square; nudged 10%, still
+    # 2026-10-21: the bowl and mallet looked small inside the square; nudged 10%, still
     # inside the range of Mudita's own stock icons (about 45-54% of the square, longest side).
     write('bowl', grown(cand_bowl(), 1.10))
     print('bowl', f'ink48 {ink("bowl-48.png"):.3f}')
