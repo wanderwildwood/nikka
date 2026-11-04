@@ -280,6 +280,8 @@
     <string name="stats_tap_a_day_meditation">A press on a day with no sitting marks it a rest day (the dash), or clears it.</string>
     <!-- The gentler measure: "18 of the last 30 days" -->
     <string name="recent_line">%1$s of the last %2$s days</string>
+    <!-- On a habit's page when nothing was done in that time: a new habit, most often -->
+    <string name="recent_none">Not yet in the last %1$s days</string>
     <!-- Under the big figure when it is the last-30 count: "of the last 30 days" -->
     <string name="recent_label">of the last %1$s days</string>
     <!-- Added to the last-30 line: "18 of the last 30 days, 2 rested" -->
@@ -294,7 +296,7 @@
     <string name="habit_cue_hint">after breakfast</string>
     <!-- Settings -->
     <string name="settings_show_streaks">Show streaks</string>
-    <string name="settings_show_streaks_note">Off, each habit shows only the days done in the last 30.</string>
+    <string name="settings_show_streaks_note">When off, each habit shows the days done in the last 30 instead.</string>
     <!-- The log: a sitting added by hand, or a change to one -->
     <string name="log_add">Add a sitting</string>
     <string name="log_add_title">Add a sitting</string>
@@ -307,7 +309,6 @@
     <string name="log_am">AM</string>
     <string name="log_pm">PM</string>
     <string name="log_length">Length (minutes)</string>
-    <string name="log_length_hint">20</string>
     <string name="log_check_time">That is not a time on this clock.</string>
     <string name="log_not_yet">That time has not come yet.</string>
     <string name="log_check_length">Give the length in whole minutes, 1 to %1$d.</string>

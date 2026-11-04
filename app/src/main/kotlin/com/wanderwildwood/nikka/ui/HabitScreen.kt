@@ -93,16 +93,27 @@ fun HabitScreen(c: AppState, id: Long, onBack: () -> Unit) {
                 // under way, or streaks hidden, the last 30 days take the big figure: never a 0
                 // in a row to look at.
                 val running = showStreaks && s.streak > 0
-                Row(Modifier.fillMaxWidth()) {
-                    if (running) {
-                        Figure(s.streak.toString(), streakWords(s.streak, s.inWeeks, current = true), Modifier.weight(1f), "streak")
-                    } else {
-                        Figure(recent.done.toString(), recentWords(null, recent), Modifier.weight(1f), "recent")
-                    }
-                    if (showStreaks && s.longest > 0) {
-                        Figure(s.longest.toString(), streakWords(s.longest, s.inWeeks, current = false), Modifier.weight(1f), "longest")
-                    } else {
-                        Spacer(Modifier.weight(1f))
+                val longest = showStreaks && s.longest > 0
+                if (!running && !longest && recent.done == 0) {
+                    // Nothing done in the last 30 days, a new habit most often: a plain line,
+                    // not a large 0.
+                    TextMMD(
+                        text = if (recent.rested == 0) stringResource(R.string.recent_none, recent.span.toString())
+                        else pluralStringResource(R.plurals.recent_rested, recent.rested, stringResource(R.string.recent_none, recent.span.toString()), recent.rested.toString()),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.testTag("recent"),
+                    )
+                } else {
+                    Row(Modifier.fillMaxWidth()) {
+                        if (running) {
+                            Figure(s.streak.toString(), streakWords(s.streak, s.inWeeks, current = true), Modifier.weight(1f), "streak")
+                        } else {
+                            Figure(recent.done.toString(), recentWords(null, recent), Modifier.weight(1f), "recent")
+                        }
+                        // Without a second figure the first has the width, so its label does not wrap early.
+                        if (longest) {
+                            Figure(s.longest.toString(), streakWords(s.longest, s.inWeeks, current = false), Modifier.weight(1f), "longest")
+                        }
                     }
                 }
                 if (running) {

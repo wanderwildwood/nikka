@@ -201,10 +201,11 @@ private fun MarkTodayDialog(c: AppState, h: Habit, mark: DayMark, onDismiss: () 
         Spacer(Modifier.height(8.dp))
         if (!h.builtin) DialogButton(stringResource(R.string.mark_done_today), filled = mark == DayMark.DONE) { set(DayMark.DONE) }
         DialogButton(stringResource(R.string.mark_rest_today), filled = mark == DayMark.RESTED) { set(DayMark.RESTED) }
-        DialogButton(
-            stringResource(if (h.builtin) R.string.mark_clear_rest else R.string.mark_clear),
-            filled = mark == DayMark.NONE && !h.builtin,
-        ) { set(DayMark.NONE) }
+        // Clear only when there is something to clear: a filled Clear on an empty day read as the
+        // thing to press.
+        if (mark != DayMark.NONE) {
+            DialogButton(stringResource(if (h.builtin) R.string.mark_clear_rest else R.string.mark_clear)) { set(DayMark.NONE) }
+        }
         DialogButton(stringResource(R.string.cancel), onClick = onDismiss)
     }
 }

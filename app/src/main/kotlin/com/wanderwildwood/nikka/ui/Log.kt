@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mudita.mmd.components.text.TextMMD
 import com.wanderwildwood.nikka.R
+import com.wanderwildwood.nikka.data.Prefs
 import com.wanderwildwood.nikka.data.Session
 import com.wanderwildwood.nikka.data.Stats
 import java.time.Instant
@@ -121,7 +122,9 @@ private fun SessionDialog(c: AppState, s: Session?, onDismiss: () -> Unit) {
     var hour by remember { mutableStateOf((if (is24) began.hour else h12).toString()) }
     var minute by remember { mutableStateOf("%02d".format(began.minute)) }
     var pm by remember { mutableStateOf(pm0) }
-    var minutes by remember { mutableStateOf(s?.let { (it.satSec / 60).toString() }.orEmpty()) }
+    // A new one starts at the length the Sit tab is set to: a real figure, not a hint that looks
+    // like one and is refused on Save.
+    var minutes by remember { mutableStateOf((s?.satSec?.div(60) ?: Prefs(context).minutes).toString()) }
     var note by remember { mutableStateOf(s?.note.orEmpty()) }
     var problem by remember { mutableStateOf<String?>(null) }
     val delete = rememberArmed()
@@ -172,8 +175,7 @@ private fun SessionDialog(c: AppState, s: Session?, onDismiss: () -> Unit) {
                 }
             }
             Field(
-                stringResource(R.string.log_length), minutes, { minutes = it.filter(Char::isDigit).take(3) },
-                hint = stringResource(R.string.log_length_hint), number = true,
+                stringResource(R.string.log_length), minutes, { minutes = it.filter(Char::isDigit).take(3) }, number = true,
             )
             Field(stringResource(R.string.end_note), note, { note = it.replace('\n', ' ').take(200) }, hint = stringResource(R.string.end_note_hint))
             problem?.let { TextMMD(text = it, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 4.dp)) }
