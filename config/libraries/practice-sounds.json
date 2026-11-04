@@ -1,0 +1,8 @@
+{
+  "uniqueId": "practice-sounds",
+  "name": "Bowl and breath sounds, made for this app",
+  "description": "The bowl and the breathing cues, synthesized for this app by tools/make-bowl.py and tools/make-breath-tones.py; no recording.",
+  "developers": [{ "name": "wander wildwood" }],
+  "website": "https://github.com/wanderwildwood/nikka",
+  "licenses": ["GPL-3.0-only"]
+}
