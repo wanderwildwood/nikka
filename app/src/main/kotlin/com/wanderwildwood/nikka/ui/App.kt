@@ -23,6 +23,7 @@ import com.mudita.mmd.components.text.TextMMD
 import com.mudita.mmd.components.top_app_bar.TopAppBarMMD
 import com.wanderwildwood.nikka.R
 import com.wanderwildwood.nikka.data.Store
+import com.wanderwildwood.nikka.sit.Breathing
 import com.wanderwildwood.nikka.sit.Sitting
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -45,6 +46,8 @@ fun PracticeApp() {
     val version by store.version.collectAsState()
     val running by Sitting.running.collectAsState()
     val ended by Sitting.ended.collectAsState()
+    val breathing by Breathing.running.collectAsState()
+    val breathDone by Breathing.done.collectAsState()
 
     // Read again on every return to the app: the day may have turned, a sitting may have ended.
     var resumed by remember { mutableIntStateOf(0) }
@@ -61,9 +64,12 @@ fun PracticeApp() {
     var tab by rememberSaveable { mutableIntStateOf(0) }
 
     val plan = running
+    val breath = breathing
     when {
+        breath != null -> BreathingScreen(breath)
         plan != null -> SessionScreen(plan)
         ended >= 0 -> EndScreen(c, ended)
+        breathDone >= 0 -> BreathDoneScreen(breathDone)
         else -> when (val s = screen) {
             Screen.Tabs -> Tabs(
                 c, tab, onTab = { tab = it },
@@ -79,7 +85,7 @@ fun PracticeApp() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Tabs(c: AppState, tab: Int, onTab: (Int) -> Unit, onSettings: () -> Unit, onHabit: (Long) -> Unit) {
-    // Back from Today or the log goes to Sit first, as from any tabbed screen of these apps.
+    // Back from Breathe, Today or the log goes to Sit first, as from any tabbed screen of these apps.
     BackHandler(enabled = tab != 0) { onTab(0) }
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -92,13 +98,17 @@ private fun Tabs(c: AppState, tab: Int, onTab: (Int) -> Unit, onSettings: () -> 
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
             StoneTabs(
-                labels = listOf(stringResource(R.string.tab_sit), stringResource(R.string.tab_today), stringResource(R.string.tab_log)),
+                labels = listOf(
+                    stringResource(R.string.tab_sit), stringResource(R.string.tab_breathe),
+                    stringResource(R.string.tab_today), stringResource(R.string.tab_log),
+                ),
                 selected = tab,
                 onSelect = onTab,
             )
             when (tab) {
                 0 -> SitTab(c)
-                1 -> TodayTab(c, onHabit = onHabit, onSit = { onTab(0) })
+                1 -> BreatheTab()
+                2 -> TodayTab(c, onHabit = onHabit, onSit = { onTab(0) })
                 else -> LogTab(c)
             }
         }
