@@ -15,8 +15,8 @@ ships with.
 
 | | |
 |---|---|
-| ![Setting a sitting: length, warm-up, interval bell](screenshots/1-sit.png) | ![Today's habits with their boxes](screenshots/2-today.png) |
-| ![Meditation's streak, totals and month of days](screenshots/3-history.png) | ![The log of sittings](screenshots/4-log.png) |
+| ![The Breathe tab set to 4-7-8: in, hold, out, three breaths a minute, five minutes, cued by vibration](screenshots/1-breathe.png) | ![Today's habits with their cue lines and streaks, three ticked and two still open](screenshots/2-today.png) |
+| ![A month of Walk: days done filled in, Sundays marked as rest days with a dash](screenshots/3-history.png) | ![The log: a sitting, a 4-7-8 breathing session, and a sitting added by hand with a note](screenshots/4-log.png) |
 
 ## Sitting
 
