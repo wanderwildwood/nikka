@@ -47,6 +47,16 @@ class Prefs(context: Context) {
         get() = p.getInt("breath_cue", BreathCue.VIBRATE)
         set(v) = p.edit().putInt("breath_cue", v).apply()
 
+    /** Streaks shown beside each habit; off shows only the days done in the last 30. */
+    var showStreaks: Boolean
+        get() = p.getBoolean("show_streaks", true)
+        set(v) = p.edit().putBoolean("show_streaks", v).apply()
+
+    /** Minutes of breathing before a sitting, as its warm-up; 0 for none. */
+    var breatheFirstMin: Int
+        get() = p.getInt("breathe_first", 0)
+        set(v) = p.edit().putInt("breathe_first", v).apply()
+
     var doNotDisturb: Boolean
         get() = p.getBoolean("dnd", false)
         set(v) = p.edit().putBoolean("dnd", v).apply()
