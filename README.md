@@ -3,7 +3,7 @@
 A meditation timer and a habit tracker in one. Sit for any length, with a warm-up and an
 interval bell if you want them; every sitting is logged, and it ticks meditation off for the
 day. Beside it, the habits you name yourself, each ticked daily or a few times a week, with a
-streak, a month of days and totals for each. Built for the
+streak, rest days, a month of days and totals for each. Built for the
 [Mudita Kompakt](https://mudita.com/products/kompakt/), and it will install on any Android 12
 device.
 
@@ -44,13 +44,27 @@ note.
 
 - **Today** lists every habit with a box for today. Meditation is ticked by any sitting, not by
   hand; the others are ticked with a press.
+- **A cue for each habit**, if you want one: **When** in the habit's dialog takes a few words
+  of your own, such as "after breakfast", and Today shows it on the habit's line: "After
+  breakfast · 4 days in a row". Tying a habit to something you already do builds it better
+  than a reminder does. Meditation can have one too.
+- **Rest days.** A long press on a habit on Today marks today done, a rest day, or neither. A
+  rest day is a day off on purpose: it keeps a streak going without adding to it, so a day
+  sick or traveling does not undo a month. Its box is an outline with a short dash. For
+  meditation, which is done by sitting, the choice is only to rest or not.
 - **Every day, or some days a week**: a habit meant three times a week is kept when it is done
   three times between one week and the next, on whichever days. The week starts on the day
   the phone's language starts it.
-- **A press on a habit opens its history**: the current streak and the longest, totals for this
-  week, this month and all time, and a month of days as squares, filled for done and outlined
-  for not. Earlier months are a press away. A past day can be ticked from there, for the day
-  you forgot.
+- **A press on a habit opens its history**: the current streak and the longest, how many of
+  the last 30 days were done (and rested), totals for this week, this month and all time, and
+  a month of days as squares: filled for done, outlined for not, outlined with a dash for a
+  rest day. Earlier months are a press away. A press on a past day marks it done, a second
+  makes it a rest day, a third clears it, for the day you forgot. On meditation's month, a
+  press on a day with no sitting marks it rested or clears it.
+- **No zero to look at.** When there is no streak under way, Today and the history show how
+  many of the last 30 days were done instead of "0 days in a row": a missed day costs a day
+  there, not the whole run. **Settings → Show streaks** turns streaks off altogether, leaving
+  only the last-30 count.
 - **Meditation's history** adds the sittings and minutes in each total, and the minutes sat on
   each of the last seven days as plain black bars.
 - A streak counts in days for a daily habit and in weeks for the others. Today not yet done
@@ -60,12 +74,18 @@ note.
 ## The log
 
 Every sitting, newest first: when it began, how long it was, how long it was meant to be when
-it ended early, and its note. A press opens it to change the minutes or the note, or to delete
-it, which asks for a second press.
+it ended early, and its note. Breathing sessions are there too, marked as breathing with their
+pattern, "Breathing · 4 · 7 · 8 · 5 min"; they do not tick meditation and are not counted
+among the sittings. A press opens an entry to change its day, time, length or note, or to
+delete it, which asks for a second press.
+
+**Add a sitting**, at the top of the log, is for one sat without the phone: on a retreat, or
+with the phone left at home. Pick the day (today or earlier), the time it began, the minutes
+and a note if you like; it ticks meditation for that day like any other sitting.
 
 ## Backup
 
-**Settings → Save a backup** writes habits, ticks and the log as one JSON file, wherever you
+**Settings → Save a backup** writes habits with their cues, ticks, rest days and the log as one JSON file, wherever you
 choose through the phone's file picker. **Restore from a backup** reads one back and replaces
 everything in the app, after a second press. There is no other copy: Android does not back the
 app up.
@@ -106,8 +126,9 @@ A release build needs a keystore at `signing/signing.keystore` with a matching
 release build comes out unsigned rather than wrongly signed.
 
 `./gradlew testDebugUnitTest` runs the tests of the streaks (daily and weekly, across months,
-years and an unfinished day or week), the month grid (from Monday and from Sunday, four to six
-rows), and the bells' timing.
+years, an unfinished day or week, and rest days), the month grid (from Monday and from Sunday,
+four to six rows), what a press on a day does, the line under each habit, the times of a
+sitting added by hand, and the bells' timing.
 
 ## Getting it, and keeping it
 
