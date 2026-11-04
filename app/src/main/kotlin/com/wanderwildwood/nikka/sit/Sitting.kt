@@ -44,11 +44,15 @@ object Sitting {
         if (p != null && System.currentTimeMillis() > p.end + 60_000L) finish(context, p.plannedSec)
     }
 
-    fun start(context: Context) {
+    /**
+     * Sets a sitting going as the Sit tab has it set. [warmup] false leaves the warm-up out, for
+     * a sitting that follows a breathing session: the breathing was the warm-up.
+     */
+    fun start(context: Context, warmup: Boolean = true) {
         val prefs = Prefs(context)
         val plan = Plan(
             start = System.currentTimeMillis(),
-            warmupSec = prefs.warmupSec,
+            warmupSec = if (warmup) prefs.warmupSec else 0,
             plannedSec = prefs.minutes * 60,
             intervalSec = prefs.intervalMin * 60,
         )
