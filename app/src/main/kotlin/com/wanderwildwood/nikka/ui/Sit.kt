@@ -52,6 +52,7 @@ import com.mudita.mmd.components.top_app_bar.TopAppBarMMD
 import com.wanderwildwood.nikka.R
 import com.wanderwildwood.nikka.data.Prefs
 import com.wanderwildwood.nikka.data.Stats
+import com.wanderwildwood.nikka.sit.Breathing
 import com.wanderwildwood.nikka.sit.Plan
 import com.wanderwildwood.nikka.sit.Sitting
 import kotlinx.coroutines.delay
@@ -59,6 +60,9 @@ import java.time.ZoneId
 
 private val PRESETS = listOf(5, 10, 15, 20, 30, 45, 60)
 private val WARMUPS = listOf(0, 10, 30, 60, 120)
+// Breathing as the warm-up, in minutes. In the Warm-up choices these stand as their negatives,
+// beside the timed warm-ups' seconds.
+private val BREATHE_FIRST = listOf(2, 5)
 private val INTERVALS = listOf(0, 5, 10, 15, 20, 30)
 
 /** The sitting as it will be set going: its length, a warm-up, an interval bell, and Start. */
@@ -69,6 +73,8 @@ fun SitTab(c: AppState) {
     var v by remember { mutableIntStateOf(0) }
     val minutes = remember(v) { prefs.minutes }
     val warmup = remember(v) { prefs.warmupSec }
+    val breatheFirst = remember(v) { prefs.breatheFirstMin }
+    val breath = remember(v) { prefs.breath }
     val interval = remember(v) { prefs.intervalMin }
     var pickOther by remember { mutableStateOf(false) }
     var pickWarmup by remember { mutableStateOf(false) }
@@ -107,7 +113,12 @@ fun SitTab(c: AppState) {
         }
         Spacer(Modifier.height(8.dp))
         HorizontalDividerMMD(thickness = 1.dp)
-        SettingRow(stringResource(R.string.sit_warmup), warmupName(warmup)) { pickWarmup = true }
+        val warmupValue = if (breatheFirst > 0) {
+            stringResource(R.string.sit_warmup_breathe_row, breath.figure(), pluralStringResource(R.plurals.minutes_long, breatheFirst, breatheFirst.toString()))
+        } else {
+            warmupName(warmup)
+        }
+        SettingRow(stringResource(R.string.sit_warmup), warmupValue) { pickWarmup = true }
         SettingRow(stringResource(R.string.sit_interval), intervalName(interval)) { pickInterval = true }
         if (!exactOn) {
             SettingRow(stringResource(R.string.sit_exact), stringResource(R.string.sit_exact_allow)) {
@@ -121,7 +132,10 @@ fun SitTab(c: AppState) {
         }
         Spacer(Modifier.weight(1f))
         ButtonMMD(
-            onClick = { Sitting.start(context) },
+            onClick = {
+                // Breathing first: the sitting starts when the breathing ends, with no warm-up.
+                if (breatheFirst > 0) Breathing.start(context, breatheFirst, thenSit = true) else Sitting.start(context)
+            },
             modifier = Modifier.fillMaxWidth().height(56.dp).testTag("start"),
         ) { TextMMD(text = stringResource(R.string.sit_start), style = MaterialTheme.typography.titleMedium) }
         Spacer(Modifier.height(20.dp))
@@ -129,8 +143,21 @@ fun SitTab(c: AppState) {
 
     if (pickOther) OtherLengthDialog(minutes, onSet = { prefs.minutes = it; v++ }, onDismiss = { pickOther = false })
     if (pickWarmup) {
-        OptionsDialog(stringResource(R.string.sit_warmup), WARMUPS.map { it to warmupName(it) }, warmup,
-            onPick = { prefs.warmupSec = it; v++ }, onDismiss = { pickWarmup = false })
+        val options = WARMUPS.map { it to warmupName(it) } + BREATHE_FIRST.map {
+            -it to stringResource(R.string.sit_warmup_breathe, pluralStringResource(R.plurals.minutes_long, it, it.toString()))
+        }
+        OptionsDialog(stringResource(R.string.sit_warmup), options, if (breatheFirst > 0) -breatheFirst else warmup,
+            onPick = {
+                if (it < 0) {
+                    prefs.breatheFirstMin = -it
+                    prefs.warmupSec = 0
+                } else {
+                    prefs.breatheFirstMin = 0
+                    prefs.warmupSec = it
+                }
+                v++
+            },
+            onDismiss = { pickWarmup = false })
     }
     if (pickInterval) {
         OptionsDialog(stringResource(R.string.sit_interval), INTERVALS.map { it to intervalName(it) }, interval,
