@@ -284,8 +284,10 @@ fun EndScreen(c: AppState, id: Long) {
         LaunchedEffect(Unit) { Sitting.noteDone(context) }
         return
     }
+    // Meditation's rest days keep its streak, as they do on its history page.
     val streak = remember(c.version, c.today) {
-        Stats.dailyStreak(Stats.sittingDays(c.store.sessions(), ZoneId.systemDefault()), c.today)
+        val rests = c.store.habits().firstOrNull { it.builtin }?.let { c.store.rests(it.id) }.orEmpty()
+        Stats.dailyStreak(Stats.sittingDays(c.store.sessions(), ZoneId.systemDefault()), c.today, rests)
     }
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
