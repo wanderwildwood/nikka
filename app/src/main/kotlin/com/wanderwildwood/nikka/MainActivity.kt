@@ -14,6 +14,7 @@ import com.mudita.mmd.ThemeMMD
 import com.wanderwildwood.nikka.data.Backup
 import com.wanderwildwood.nikka.data.Store
 import com.wanderwildwood.nikka.sit.Sitting
+import com.wanderwildwood.nikka.ui.houseTypography
 import java.io.File
 import com.wanderwildwood.nikka.ui.PracticeApp
 import com.wanderwildwood.nikka.ui.monochrome
@@ -30,7 +31,7 @@ class MainActivity : ComponentActivity() {
             // A steady cursor: a blinking one is a repaint twice a second on an e-ink panel
             // for as long as a field has focus.
             CompositionLocalProvider(LocalCursorBlinkEnabled provides false) {
-                ThemeMMD(colorScheme = monochrome) {
+                ThemeMMD(colorScheme = monochrome, typography = houseTypography) {
                     ArmedScope {
                         // A debug build names its rows for the emulator tests; a release names none.
                         Box(Modifier.semantics { testTagsAsResourceId = BuildConfig.DEBUG }) {
