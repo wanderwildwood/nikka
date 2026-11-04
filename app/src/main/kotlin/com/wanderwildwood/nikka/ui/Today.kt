@@ -1,6 +1,11 @@
 package com.wanderwildwood.nikka.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,13 +29,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import android.content.Context
 import androidx.compose.ui.unit.dp
 import com.mudita.mmd.components.checkbox.CheckboxMMD
 import com.mudita.mmd.components.divider.HorizontalDividerMMD
 import com.mudita.mmd.components.text.TextMMD
 import com.wanderwildwood.nikka.R
 import com.wanderwildwood.nikka.data.Habit
+import com.wanderwildwood.nikka.data.Prefs
 import com.wanderwildwood.nikka.data.Stats
 import java.time.LocalDate
 import java.time.ZoneId
@@ -39,54 +50,85 @@ import java.time.ZoneId
 fun doneDays(c: AppState, h: Habit): Set<LocalDate> =
     if (h.builtin) Stats.sittingDays(c.store.sessions(), ZoneId.systemDefault()) else c.store.ticks(h.id)
 
+/** One habit's row on Today, worked out once per change. */
+private class TodayRow(val habit: Habit, val mark: DayMark, val line: String)
+
+/**
+ * The line under a habit: its cue, then its streak or the days done in the last 30 (see
+ * [rateFor]). Empty when there is neither, and the row keeps the line's height all the same.
+ */
+fun habitLine(context: Context, h: Habit, s: Stats.Summary, recent: Stats.Recent, showStreaks: Boolean): String {
+    val rate = when (val r = rateFor(showStreaks, h.daily, h.perWeek, s, recent)) {
+        is Rate.Streak -> Words.streak(context, r.n, r.weeks)
+        is Rate.Week -> context.getString(R.string.today_of_week, r.done.toString(), r.of.toString())
+        is Rate.Recent -> context.getString(R.string.recent_line, r.done.toString(), r.span.toString())
+        null -> ""
+    }
+    val cue = cueLabel(h.cue)
+    return when {
+        cue.isEmpty() -> rate
+        rate.isEmpty() -> cue
+        else -> context.getString(R.string.cue_and_rate, cue, rate)
+    }
+}
+
 /**
  * Every habit with a box for today. Meditation's box is ticked by a sitting, not by hand, so a
- * press on it goes to the Sit tab; a press on any row opens its history.
+ * press on it goes to the Sit tab; a press on any row opens its history. A long press on a row
+ * marks today done, rested or neither.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TodayTab(c: AppState, onHabit: (Long) -> Unit, onSit: () -> Unit) {
     val context = LocalContext.current
-    val rows = remember(c.version, c.today) {
+    // Read on every return: Settings, where it is switched, is a screen of its own.
+    val showStreaks = remember { Prefs(context).showStreaks }
+    val rows = remember(c.version, c.today, showStreaks) {
         c.store.habits().map { h ->
             val days = doneDays(c, h)
-            Triple(h, c.today in days, Stats.summary(days, h.perWeek, c.today, c.firstDay))
+            val rest = c.store.rests(h.id)
+            val s = Stats.summary(days, h.perWeek, c.today, c.firstDay, rest)
+            TodayRow(h, markOf(c.today, days, rest), habitLine(context, h, s, Stats.recent(days, c.today, rest), showStreaks))
         }
     }
     var adding by remember { mutableStateOf(false) }
+    var marking by remember { mutableStateOf<TodayRow?>(null) }
     val state = rememberLazyListState()
     PagedColumn(Modifier.fillMaxSize(), state = state) {
         item(key = "day") {
             Heading(Words.longDay(c.today), Modifier.padding(horizontal = 20.dp))
         }
-        for ((h, done, s) in rows) {
+        for (row in rows) {
+            val h = row.habit
             item(key = h.id) {
                 Row(
                     Modifier
                         .fillMaxWidth()
-                        .clickable { onHabit(h.id) }
+                        .combinedClickable(onClick = { onHabit(h.id) }, onLongClick = { marking = row })
                         .testTag("habit_${h.id}")
                         .padding(start = 20.dp, top = 12.dp, bottom = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(Modifier.weight(1f)) {
-                        TextMMD(text = habitName(h), style = MaterialTheme.typography.titleMedium)
-                        val sub = when {
-                            !h.daily -> stringResource(R.string.today_of_week, s.thisWeek.toString(), h.perWeek.toString())
-                            s.streak > 1 -> Words.streak(context, s.streak, weeks = false)
-                            else -> null
-                        }
-                        if (sub != null) TextMMD(text = sub, style = MaterialTheme.typography.labelSmall)
+                        TextMMD(text = habitName(h), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        // Always drawn, empty or not, so every row is the same height and a tick
+                        // that changes the line does not move the rows below it.
+                        TextMMD(text = row.line, style = MaterialTheme.typography.labelSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
+                    val done = row.mark == DayMark.DONE
                     val press = { if (h.builtin) onSit() else c.store.setTick(h.id, c.today, !done) }
                     // CheckboxMMD takes every press on itself even with no handler, so the
                     // handler goes to it as well as to the margin round it.
                     Box(
                         Modifier
                             .size(56.dp)
-                            .clickable(onClick = press)
+                            .combinedClickable(onClick = press, onLongClick = { marking = row })
                             .testTag("tick_${h.id}"),
                         contentAlignment = Alignment.Center,
-                    ) { CheckboxMMD(checked = done, onCheckedChange = { press() }) }
+                    ) {
+                        if (row.mark == DayMark.RESTED) RestBox(Modifier.clickable(onClick = press))
+                        else CheckboxMMD(checked = done, onCheckedChange = { press() })
+                    }
                     Spacer(Modifier.width(8.dp))
                 }
                 DottedRule(start = 20.dp, end = 20.dp)
@@ -107,7 +149,64 @@ fun TodayTab(c: AppState, onHabit: (Long) -> Unit, onSit: () -> Unit) {
             }
         }
     }
-    if (adding) HabitDialog(null, onSave = { name, perWeek -> c.store.addHabit(name, perWeek) }, onDismiss = { adding = false })
+    if (adding) HabitDialog(null, onSave = { name, perWeek, cue -> c.store.addHabit(name, perWeek, cue) }, onDismiss = { adding = false })
+    marking?.let { row -> MarkTodayDialog(c, row.habit, row.mark, onDismiss = { marking = null }) }
+}
+
+/**
+ * A rested day's box: an outline with a short dash across it, where a done day has a tick.
+ * Plain enough to read at a glance on E Ink, and not to be mistaken for either.
+ */
+@Composable
+fun RestBox(modifier: Modifier = Modifier) {
+    val state = stringResource(R.string.day_rested)
+    Box(
+        modifier
+            .size(22.dp)
+            .border(2.dp, Color.Black, RoundedCornerShape(3.dp))
+            .semantics { stateDescription = state },
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(Modifier.width(10.dp).height(2.5.dp).background(Color.Black))
+    }
+}
+
+/**
+ * Today, marked by hand: done, rested, or neither, the current one filled. Meditation is done by
+ * a sitting, so it offers only a rest, and nothing at all once today has a sitting.
+ */
+@Composable
+private fun MarkTodayDialog(c: AppState, h: Habit, mark: DayMark, onDismiss: () -> Unit) {
+    fun set(to: DayMark) {
+        when (to) {
+            DayMark.DONE -> c.store.setTick(h.id, c.today, true)
+            DayMark.RESTED -> c.store.setRest(h.id, c.today, true)
+            DayMark.NONE -> {
+                c.store.setRest(h.id, c.today, false)
+                if (!h.builtin) c.store.setTick(h.id, c.today, false)
+            }
+        }
+        onDismiss()
+    }
+    EInkDialog(onDismiss = onDismiss) {
+        TextMMD(text = habitName(h), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+        Spacer(Modifier.height(4.dp))
+        if (h.builtin && mark == DayMark.DONE) {
+            TextMMD(text = stringResource(R.string.mark_sat_today), style = MaterialTheme.typography.bodyMedium)
+            Spacer(Modifier.height(12.dp))
+            DialogButton(stringResource(R.string.close), onClick = onDismiss)
+            return@EInkDialog
+        }
+        TextMMD(text = stringResource(R.string.mark_rest_note), style = MaterialTheme.typography.labelSmall)
+        Spacer(Modifier.height(8.dp))
+        if (!h.builtin) DialogButton(stringResource(R.string.mark_done_today), filled = mark == DayMark.DONE) { set(DayMark.DONE) }
+        DialogButton(stringResource(R.string.mark_rest_today), filled = mark == DayMark.RESTED) { set(DayMark.RESTED) }
+        DialogButton(
+            stringResource(if (h.builtin) R.string.mark_clear_rest else R.string.mark_clear),
+            filled = mark == DayMark.NONE && !h.builtin,
+        ) { set(DayMark.NONE) }
+        DialogButton(stringResource(R.string.cancel), onClick = onDismiss)
+    }
 }
 
 @Composable
@@ -115,10 +214,11 @@ fun habitName(h: Habit): String = if (h.builtin) stringResource(R.string.meditat
 
 /** A new habit, or a change to one: its name, and every day or some days a week. */
 @Composable
-fun HabitDialog(habit: Habit?, onSave: (String, Int) -> Unit, onDismiss: () -> Unit, onDelete: (() -> Unit)? = null) {
+fun HabitDialog(habit: Habit?, onSave: (String, Int, String) -> Unit, onDismiss: () -> Unit, onDelete: (() -> Unit)? = null) {
     var name by remember { mutableStateOf(habit?.name.orEmpty()) }
     var daily by remember { mutableStateOf(habit?.daily ?: true) }
     var perWeek by remember { mutableStateOf(habit?.perWeek?.takeIf { it < 7 } ?: 3) }
+    var cue by remember { mutableStateOf(habit?.cue.orEmpty()) }
     var tried by remember { mutableStateOf(false) }
     EInkDialog(onDismiss = onDismiss) {
         TextMMD(
@@ -136,6 +236,8 @@ fun HabitDialog(habit: Habit?, onSave: (String, Int) -> Unit, onDismiss: () -> U
         if (tried && name.isBlank() && habit?.builtin != true) {
             TextMMD(text = stringResource(R.string.habit_name_needed), style = MaterialTheme.typography.labelSmall)
         }
+        // When or after what it is done, in the person's own words; meditation's too.
+        Field(stringResource(R.string.habit_cue), cue, { cue = it.replace('\n', ' ').take(40) }, hint = stringResource(R.string.habit_cue_hint))
         Spacer(Modifier.height(8.dp))
         ChoiceRow(stringResource(R.string.habit_daily), daily) { daily = true }
         ChoiceRow(stringResource(R.string.habit_weekly), !daily) { daily = false }
@@ -154,7 +256,7 @@ fun HabitDialog(habit: Habit?, onSave: (String, Int) -> Unit, onDismiss: () -> U
         val ok = habit?.builtin == true || name.isNotBlank()
         DialogButton(stringResource(R.string.save), filled = true) {
             if (ok) {
-                onSave(name.trim(), if (daily) 7 else perWeek)
+                onSave(name.trim(), if (daily) 7 else perWeek, cue.trim())
                 onDismiss()
             } else tried = true
         }
@@ -169,7 +271,7 @@ fun HabitDialog(habit: Habit?, onSave: (String, Int) -> Unit, onDismiss: () -> U
 }
 
 @Composable
-private fun StepButton(label: String, enabled: Boolean, onClick: () -> Unit) {
+internal fun StepButton(label: String, enabled: Boolean, onClick: () -> Unit) {
     Box(
         Modifier.size(48.dp).let { if (enabled) it.clickable(onClick = onClick) else it },
         contentAlignment = Alignment.Center,
