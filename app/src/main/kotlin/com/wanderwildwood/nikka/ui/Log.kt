@@ -127,93 +127,96 @@ private fun SessionDialog(c: AppState, s: Session?, onDismiss: () -> Unit) {
     var minutes by remember { mutableStateOf((s?.satSec?.div(60) ?: Prefs(context).minutes).toString()) }
     var note by remember { mutableStateOf(s?.note.orEmpty()) }
     var problem by remember { mutableStateOf<String?>(null) }
-    val delete = rememberArmed()
     EInkDialog(onDismiss = onDismiss) {
-        // Scrolls only when the keyboard leaves it too little room.
-        Column(Modifier.verticalScroll(rememberScrollState())) {
-            TextMMD(
-                text = when {
-                    s == null -> stringResource(R.string.log_add_title)
-                    s.breathing -> sessionLine(context, s)
-                    else -> stringResource(R.string.log_edit_title)
-                },
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
-            )
-            if (s != null && s.endedEarly && !s.breathing) {
+        // Its own scope: the dialog is a window of its own, so a touch elsewhere in it disarms.
+        ArmedScope(Modifier.fillMaxWidth()) {
+            val delete = rememberArmed()
+            // Scrolls only when the keyboard leaves it too little room.
+            Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
                 TextMMD(
-                    text = stringResource(R.string.log_planned, context.getString(R.string.minutes_short, (s.plannedSec / 60).toString())),
-                    style = MaterialTheme.typography.labelSmall,
+                    text = when {
+                        s == null -> stringResource(R.string.log_add_title)
+                        s.breathing -> sessionLine(context, s)
+                        else -> stringResource(R.string.log_edit_title)
+                    },
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
                 )
-            }
-            Row(Modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                BarButton(Icons.ChevronLeft, stringResource(R.string.cd_previous_day)) { day = day.minusDays(1) }
-                TextMMD(
-                    text = if (day == c.today) stringResource(R.string.log_today) else Words.shortDay(day),
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f).testTag("hand_day"),
-                )
-                if (day.isBefore(c.today)) {
-                    BarButton(Icons.ChevronRight, stringResource(R.string.cd_next_day)) { day = day.plusDays(1) }
-                } else {
-                    Spacer(Modifier.width(48.dp))
-                }
-            }
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
-                Field(stringResource(R.string.log_hour), hour, { hour = it.filter(Char::isDigit).take(2) }, number = true, modifier = Modifier.weight(1f))
-                Spacer(Modifier.width(8.dp))
-                Field(stringResource(R.string.log_minute), minute, { minute = it.filter(Char::isDigit).take(2) }, number = true, modifier = Modifier.weight(1f))
-                if (!is24) {
-                    Spacer(Modifier.width(8.dp))
-                    // One press turns AM to PM and back.
-                    HouseButton(
-                        stringResource(if (pm) R.string.log_pm else R.string.log_am),
-                        { pm = !pm },
-                        Modifier.padding(bottom = 6.dp).testTag("hand_ampm"),
+                if (s != null && s.endedEarly && !s.breathing) {
+                    TextMMD(
+                        text = stringResource(R.string.log_planned, context.getString(R.string.minutes_short, (s.plannedSec / 60).toString())),
+                        style = MaterialTheme.typography.labelSmall,
                     )
                 }
-            }
-            Field(
-                stringResource(R.string.log_length), minutes, { minutes = it.filter(Char::isDigit).take(3) }, number = true,
-            )
-            Field(stringResource(R.string.end_note), note, { note = it.replace('\n', ' ').take(200) }, hint = stringResource(R.string.end_note_hint))
-            problem?.let { TextMMD(text = it, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 4.dp)) }
-            Spacer(Modifier.height(8.dp))
-            DialogButtons(
-                cancel = stringResource(R.string.cancel),
-                confirm = stringResource(R.string.save),
-                onCancel = onDismiss,
-                confirmOn = true,
-                onConfirm = {
-                    val start = handStart(day, hour, minute, is24, pm, Long.MAX_VALUE, zone)
-                    val m = minutes.trim().toIntOrNull()
-                    problem = when {
-                        start == null -> context.getString(R.string.log_check_time)
-                        start > System.currentTimeMillis() -> context.getString(R.string.log_not_yet)
-                        // A logged sitting under a minute shows 0, and may keep it.
-                        m == null || (m !in 1..HAND_MAX_MIN && m != s?.let { it.satSec / 60 }) ->context.getString(R.string.log_check_length, HAND_MAX_MIN)
-                        else -> null
-                    }
-                    if (problem != null || start == null || m == null) return@DialogButtons
-                    if (s == null) {
-                        c.store.addSession(start = start, plannedSec = m * 60, satSec = m * 60, note = note.trim(), kind = Session.SIT)
+                Row(Modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                    BarButton(Icons.ChevronLeft, stringResource(R.string.cd_previous_day)) { day = day.minusDays(1) }
+                    TextMMD(
+                        text = if (day == c.today) stringResource(R.string.log_today) else Words.shortDay(day),
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.weight(1f).testTag("hand_day"),
+                    )
+                    if (day.isBefore(c.today)) {
+                        BarButton(Icons.ChevronRight, stringResource(R.string.cd_next_day)) { day = day.plusDays(1) }
                     } else {
-                        // Unchanged minutes keep the seconds they had; a new figure is whole minutes.
-                        val sat = if (m == s.satSec / 60) s.satSec else m * 60
-                        // Unchanged to the minute keeps the start it had, seconds and all.
-                        val moved = Stats.dayOf(s.start, zone) != day || start / 60_000 != s.start / 60_000
-                        c.store.updateSession(s.id, sat, note.trim(), if (moved) start else null)
+                        Spacer(Modifier.width(48.dp))
                     }
-                    onDismiss()
-                },
-            )
-            if (s != null) {
-                Spacer(Modifier.height(4.dp))
-                DialogButton(stringResource(if (delete.on) R.string.log_delete_armed else R.string.log_delete)) {
-                    delete.press {
-                        c.store.deleteSession(s.id)
+                }
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+                    Field(stringResource(R.string.log_hour), hour, { hour = it.filter(Char::isDigit).take(2) }, number = true, modifier = Modifier.weight(1f))
+                    Spacer(Modifier.width(8.dp))
+                    Field(stringResource(R.string.log_minute), minute, { minute = it.filter(Char::isDigit).take(2) }, number = true, modifier = Modifier.weight(1f))
+                    if (!is24) {
+                        Spacer(Modifier.width(8.dp))
+                        // One press turns AM to PM and back.
+                        HouseButton(
+                            stringResource(if (pm) R.string.log_pm else R.string.log_am),
+                            { pm = !pm },
+                            Modifier.padding(bottom = 6.dp).testTag("hand_ampm"),
+                        )
+                    }
+                }
+                Field(
+                    stringResource(R.string.log_length), minutes, { minutes = it.filter(Char::isDigit).take(3) }, number = true,
+                )
+                Field(stringResource(R.string.end_note), note, { note = it.replace('\n', ' ').take(200) }, hint = stringResource(R.string.end_note_hint))
+                problem?.let { TextMMD(text = it, style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 4.dp)) }
+                Spacer(Modifier.height(8.dp))
+                DialogButtons(
+                    cancel = stringResource(R.string.cancel),
+                    confirm = stringResource(R.string.save),
+                    onCancel = onDismiss,
+                    confirmOn = true,
+                    onConfirm = {
+                        val start = handStart(day, hour, minute, is24, pm, Long.MAX_VALUE, zone)
+                        val m = minutes.trim().toIntOrNull()
+                        problem = when {
+                            start == null -> context.getString(R.string.log_check_time)
+                            start > System.currentTimeMillis() -> context.getString(R.string.log_not_yet)
+                            // A logged sitting under a minute shows 0, and may keep it.
+                            m == null || (m !in 1..HAND_MAX_MIN && m != s?.let { it.satSec / 60 }) ->context.getString(R.string.log_check_length, HAND_MAX_MIN)
+                            else -> null
+                        }
+                        if (problem != null || start == null || m == null) return@DialogButtons
+                        if (s == null) {
+                            c.store.addSession(start = start, plannedSec = m * 60, satSec = m * 60, note = note.trim(), kind = Session.SIT)
+                        } else {
+                            // Unchanged minutes keep the seconds they had; a new figure is whole minutes.
+                            val sat = if (m == s.satSec / 60) s.satSec else m * 60
+                            // Unchanged to the minute keeps the start it had, seconds and all.
+                            val moved = Stats.dayOf(s.start, zone) != day || start / 60_000 != s.start / 60_000
+                            c.store.updateSession(s.id, sat, note.trim(), if (moved) start else null)
+                        }
                         onDismiss()
+                    },
+                )
+                if (s != null) {
+                    Spacer(Modifier.height(4.dp))
+                    DialogButton(stringResource(if (delete.on) R.string.log_delete_armed else R.string.log_delete)) {
+                        delete.press {
+                            c.store.deleteSession(s.id)
+                            onDismiss()
+                        }
                     }
                 }
             }

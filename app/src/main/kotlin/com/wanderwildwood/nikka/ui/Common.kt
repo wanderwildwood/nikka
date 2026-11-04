@@ -14,9 +14,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -32,7 +30,6 @@ import com.mudita.mmd.components.radio_button.RadioButtonMMD
 import com.mudita.mmd.components.switcher.SwitchMMD
 import com.mudita.mmd.components.text.TextMMD
 import com.mudita.mmd.components.text_field.TextFieldMMD
-import kotlinx.coroutines.delay
 
 /** An icon in a top bar, with a target a thumb can find. */
 @Composable
@@ -100,32 +97,20 @@ fun ChoiceRow(title: String, chosen: Boolean, onClick: () -> Unit) {
 
 /**
  * A press that asks once, in its own face: the first press arms it and changes what it says,
- * the second does it. It disarms itself after six seconds, so a stray press does not leave
- * a live trigger for whoever picks the phone up next.
+ * the second does it. It stays armed, with no timer, until the next other touch, Back or
+ * leaving the screen (shared Armed.kt), so a stray press does not leave a live trigger.
  */
 @Composable
 fun rememberArmed(): Armed {
-    val a = remember { Armed() }
-    LaunchedEffect(a.on) {
-        if (!a.on) return@LaunchedEffect
-        delay(ARM_MS)
-        a.on = false
-    }
-    return a
+    val f = rememberArmedFlag()
+    return remember(f) { Armed(f) }
 }
 
-class Armed {
-    var on by mutableStateOf(false)
+class Armed(private val f: ArmedFlag) {
+    var on by f
 
     /** Arms on the first press, and runs [action] on the second. */
-    fun press(action: () -> Unit) {
-        if (on) {
-            on = false
-            action()
-        } else {
-            on = true
-        }
-    }
+    fun press(action: () -> Unit) = f.press(action)
 }
 
 @Composable
@@ -208,5 +193,3 @@ fun Field(
     }
 }
 
-/** How long a press that asks once stays armed. */
-const val ARM_MS = 6000L

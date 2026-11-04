@@ -222,50 +222,55 @@ fun HabitDialog(habit: Habit?, onSave: (String, Int, String) -> Unit, onDismiss:
     var cue by remember { mutableStateOf(habit?.cue.orEmpty()) }
     var tried by remember { mutableStateOf(false) }
     EInkDialog(onDismiss = onDismiss) {
-        TextMMD(
-            text = when {
-                habit == null -> stringResource(R.string.habit_new)
-                habit.builtin -> stringResource(R.string.meditation)
-                else -> stringResource(R.string.habit_edit)
-            },
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Medium,
-        )
-        if (habit?.builtin != true) {
-            Field(stringResource(R.string.habit_name), name, { name = it.replace('\n', ' ').take(60) }, hint = stringResource(R.string.habit_name_hint))
-        }
-        if (tried && name.isBlank() && habit?.builtin != true) {
-            TextMMD(text = stringResource(R.string.habit_name_needed), style = MaterialTheme.typography.labelSmall)
-        }
-        // When or after what it is done, in the person's own words; meditation's too.
-        Field(stringResource(R.string.habit_cue), cue, { cue = it.replace('\n', ' ').take(40) }, hint = stringResource(R.string.habit_cue_hint))
-        Spacer(Modifier.height(8.dp))
-        ChoiceRow(stringResource(R.string.habit_daily), daily) { daily = true }
-        ChoiceRow(stringResource(R.string.habit_weekly), !daily) { daily = false }
-        if (!daily) {
-            Row(Modifier.fillMaxWidth().padding(start = 40.dp), verticalAlignment = Alignment.CenterVertically) {
-                StepButton("−", enabled = perWeek > 1) { perWeek-- }
+        // Its own scope: the dialog is a window of its own, so a touch elsewhere in it disarms.
+        ArmedScope(Modifier.fillMaxWidth()) {
+            Column(Modifier.fillMaxWidth()) {
                 TextMMD(
-                    text = stringResource(R.string.habit_times_a_week, perWeek.toString()),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(horizontal = 12.dp).testTag("per_week"),
+                    text = when {
+                        habit == null -> stringResource(R.string.habit_new)
+                        habit.builtin -> stringResource(R.string.meditation)
+                        else -> stringResource(R.string.habit_edit)
+                    },
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
                 )
-                StepButton("+", enabled = perWeek < 6) { perWeek++ }
-            }
-        }
-        Spacer(Modifier.height(12.dp))
-        val ok = habit?.builtin == true || name.isNotBlank()
-        DialogButton(stringResource(R.string.save), filled = true) {
-            if (ok) {
-                onSave(name.trim(), if (daily) 7 else perWeek, cue.trim())
-                onDismiss()
-            } else tried = true
-        }
-        DialogButton(stringResource(R.string.cancel), onClick = onDismiss)
-        if (habit != null && !habit.builtin && onDelete != null) {
-            ArmedRow(stringResource(R.string.habit_delete), stringResource(R.string.habit_delete_armed)) {
-                onDelete()
-                onDismiss()
+                if (habit?.builtin != true) {
+                    Field(stringResource(R.string.habit_name), name, { name = it.replace('\n', ' ').take(60) }, hint = stringResource(R.string.habit_name_hint))
+                }
+                if (tried && name.isBlank() && habit?.builtin != true) {
+                    TextMMD(text = stringResource(R.string.habit_name_needed), style = MaterialTheme.typography.labelSmall)
+                }
+                // When or after what it is done, in the person's own words; meditation's too.
+                Field(stringResource(R.string.habit_cue), cue, { cue = it.replace('\n', ' ').take(40) }, hint = stringResource(R.string.habit_cue_hint))
+                Spacer(Modifier.height(8.dp))
+                ChoiceRow(stringResource(R.string.habit_daily), daily) { daily = true }
+                ChoiceRow(stringResource(R.string.habit_weekly), !daily) { daily = false }
+                if (!daily) {
+                    Row(Modifier.fillMaxWidth().padding(start = 40.dp), verticalAlignment = Alignment.CenterVertically) {
+                        StepButton("−", enabled = perWeek > 1) { perWeek-- }
+                        TextMMD(
+                            text = stringResource(R.string.habit_times_a_week, perWeek.toString()),
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(horizontal = 12.dp).testTag("per_week"),
+                        )
+                        StepButton("+", enabled = perWeek < 6) { perWeek++ }
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+                val ok = habit?.builtin == true || name.isNotBlank()
+                DialogButton(stringResource(R.string.save), filled = true) {
+                    if (ok) {
+                        onSave(name.trim(), if (daily) 7 else perWeek, cue.trim())
+                        onDismiss()
+                    } else tried = true
+                }
+                DialogButton(stringResource(R.string.cancel), onClick = onDismiss)
+                if (habit != null && !habit.builtin && onDelete != null) {
+                    ArmedRow(stringResource(R.string.habit_delete), stringResource(R.string.habit_delete_armed)) {
+                        onDelete()
+                        onDismiss()
+                    }
+                }
             }
         }
     }

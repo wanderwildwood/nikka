@@ -17,6 +17,7 @@ import com.wanderwildwood.nikka.sit.Sitting
 import java.io.File
 import com.wanderwildwood.nikka.ui.PracticeApp
 import com.wanderwildwood.nikka.ui.monochrome
+import com.wanderwildwood.nikka.ui.ArmedScope
 
 class MainActivity : ComponentActivity() {
 
@@ -30,9 +31,11 @@ class MainActivity : ComponentActivity() {
             // for as long as a field has focus.
             CompositionLocalProvider(LocalCursorBlinkEnabled provides false) {
                 ThemeMMD(colorScheme = monochrome) {
-                    // A debug build names its rows for the emulator tests; a release names none.
-                    Box(Modifier.semantics { testTagsAsResourceId = BuildConfig.DEBUG }) {
-                        PracticeApp()
+                    ArmedScope {
+                        // A debug build names its rows for the emulator tests; a release names none.
+                        Box(Modifier.semantics { testTagsAsResourceId = BuildConfig.DEBUG }) {
+                            PracticeApp()
+                        }
                     }
                 }
             }
