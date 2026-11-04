@@ -40,6 +40,25 @@ ships with.
 When a sitting ends you see how long it was, the streak it keeps, and a field for a one-line
 note.
 
+## Breathing
+
+- **A pattern to breathe by.** 4-7-8, 6-6 and Box (4-4-4-4) are a press away, or **Other** for
+  your own: seconds in, holding full, out and holding empty, up to 20 each. The tab shows the
+  pattern as a large figure, with what each number is and how many breaths it makes a minute.
+- **Any of 1 to 15 minutes**, rounded up to whole rounds, so a session never stops mid-breath.
+- **A cue at each change**, so it can be followed with the eyes shut: a buzz, a soft tone, both,
+  or nothing but the screen. In and out feel and sound different; a hold is the faintest tick.
+  The tones play at the alarm volume, as the bells do.
+- **The screen stays awake while you breathe**, on the app's usual light page: the phase in
+  words, the seconds left in it, and the round. It changes once a second and no more. Hold
+  anywhere to end early; **Back** or leaving the app ends it too, since the cues are timed on
+  screen.
+- **Logged, but apart from meditation.** Each session of ten seconds or more goes in the log
+  with its pattern. It does not tick meditation or count toward its streak.
+- **Breathe before a sitting.** The Sit tab's **Warm-up** can be two or five minutes of
+  breathing, in the Breathe tab's pattern and cue. When the breathing ends, or with a long
+  press, the sitting begins at once. **Back** ends both.
+
 ## Habits
 
 - **Today** lists every habit with a box for today. Meditation is ticked by any sitting, not by

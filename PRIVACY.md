@@ -4,17 +4,18 @@ Practice collects nothing and sends nothing anywhere. It has no internet permiss
 cannot.
 
 It keeps, in its own private storage on the phone: the habits you name and the days each was
-ticked, the log of sittings (when each began, how long it was meant to be and how long was sat,
-and any note you wrote), how the next sitting is set, and its few settings. Android does not
+ticked, the log of sittings and breathing sessions (when each began, how long it was meant to be and
+how long it lasted, a breathing session's pattern, and any note you wrote), how the next sitting is set, and its few settings. Android does not
 back it up, and uninstalling the app removes all of it.
 
 **Save a backup** in Settings writes all of that as one file, to the place you choose in the
 phone's file picker, and only when you press it. Where that file goes after that is up to you.
 
-The permissions it asks for are for the bells and nothing else: exact alarms, so they ring on
-time; a foreground service and a wake lock, so they ring with the screen off; notifications,
-for the quiet one that shows while a sitting is under way (Android asks a foreground service to
-show one); and, only if you switch it on, access to Do Not Disturb, so it can turn alarms-only
+The permissions it asks for are for the bells and the breathing cues and nothing else: exact
+alarms, so the bells ring on time; a foreground service and a wake lock, so they ring with the
+screen off; notifications, for the quiet one that shows while a sitting is under way (Android
+asks a foreground service to show one); vibration, to mark each change of breath when that is
+the cue you choose; and, only if you switch it on, access to Do Not Disturb, so it can turn alarms-only
 on for a sitting and back off afterwards. The one more in its manifest is not one you are asked
 for: Android's support library adds it to every app built with it
 (`DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`), so that the app's own internal messages can reach
