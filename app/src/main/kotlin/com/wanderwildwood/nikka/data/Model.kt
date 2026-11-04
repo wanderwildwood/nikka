@@ -14,14 +14,20 @@ data class Habit(
     val perWeek: Int,
     val builtin: Boolean,
     val position: Int,
+    /** When or after what it is done, in the person's words ("after breakfast"); empty for none. */
+    val cue: String = "",
 ) {
     val daily: Boolean get() = perWeek >= 7
 }
 
 /**
- * One sitting as it was logged: when it began (wall clock, ms), how long it was meant to be, how
- * long was actually sat, and a line about it if one was written. A sitting ended early is still
- * a sitting, so [satSec] can be less than [plannedSec].
+ * One session as it was logged: when it began (wall clock, ms), how long it was meant to be, how
+ * long it actually lasted, and a line about it if one was written. A session ended early is
+ * still logged, so [satSec] can be less than [plannedSec].
+ *
+ * [kind] is a sitting or a breathing session. Only sittings tick meditation; breathing is in the
+ * log beside them. [pattern] is a breathing session's "in,hold,out,rest" seconds, empty for a
+ * sitting. Both are data, not interface, and stay in English.
  */
 data class Session(
     val id: Long,
@@ -29,6 +35,14 @@ data class Session(
     val plannedSec: Int,
     val satSec: Int,
     val note: String,
+    val kind: String = SIT,
+    val pattern: String = "",
 ) {
     val endedEarly: Boolean get() = satSec < plannedSec
+    val breathing: Boolean get() = kind == BREATHE
+
+    companion object {
+        const val SIT = "sit"
+        const val BREATHE = "breathe"
+    }
 }

@@ -139,7 +139,7 @@ fun HabitScreen(c: AppState, id: Long, onBack: () -> Unit) {
         }
     }
     if (editing) {
-        HabitDialog(habit, onSave = { name, perWeek -> c.store.updateHabit(habit.id, if (habit.builtin) "" else name, perWeek) }, onDismiss = { editing = false },
+        HabitDialog(habit, onSave = { name, perWeek -> c.store.updateHabit(habit.id, if (habit.builtin) "" else name, perWeek, habit.cue) }, onDismiss = { editing = false },
             onDelete = {
                 c.store.deleteHabit(habit.id)
                 onBack()

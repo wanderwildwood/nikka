@@ -73,6 +73,40 @@
     <string name="session_until">Until %1$s</string>
     <string name="session_hold">Hold anywhere to end</string>
 
+    <!-- ============================================================ -->
+    <!-- Breathing: its tab, its settings, and the breathing screen -->
+
+    <string name="tab_breathe">Breathe</string>
+    <!-- Under the figure "4 · 7 · 8": what each number is -->
+    <string name="breath_in_short">in</string>
+    <string name="breath_hold_short">hold</string>
+    <string name="breath_out_short">out</string>
+    <!-- The pattern with equal sides: in, hold, out, hold -->
+    <string name="breath_box">Box</string>
+    <string name="breath_other_title">Your own pattern</string>
+    <string name="breath_field_in">Breathe in (seconds)</string>
+    <string name="breath_field_hold">Hold full (seconds)</string>
+    <string name="breath_field_out">Breathe out (seconds)</string>
+    <string name="breath_field_rest">Hold empty (seconds)</string>
+    <string name="breath_other_range">In and out 1 to %1$d seconds, holds 0 to %1$d.</string>
+    <string name="breath_length">Length</string>
+    <string name="breath_cue">Cue</string>
+    <string name="cue_vibrate">Vibrate</string>
+    <string name="cue_tone">Soft tone</string>
+    <string name="cue_both">Vibrate and tone</string>
+    <string name="cue_screen">Screen only</string>
+    <!-- Said large on the breathing screen -->
+    <string name="breath_now_in">Breathe in</string>
+    <string name="breath_now_hold">Hold</string>
+    <string name="breath_now_out">Breathe out</string>
+    <string name="breath_round">Round %1$d of %2$d</string>
+    <string name="breath_done">Done</string>
+    <plurals name="breath_done_rounds">
+        <item quantity="one">%1$d round</item>
+        <item quantity="other">%1$d rounds</item>
+    </plurals>
+    <string name="breath_tap_close">Tap anywhere to close</string>
+
     <!-- The notification while a sitting runs -->
     <string name="channel_sitting">While sitting</string>
     <string name="notify_warming">Settling in. The first bell is at %1$s.</string>
