@@ -28,7 +28,7 @@
     <!-- When a sitting began: "Sat 17 Oct, 07:20" -->
     <string name="day_time">%1$s, %2$s</string>
 
-    <!-- The three tabs -->
+    <!-- The tabs (Breathe is with the breathing strings below) -->
     <string name="tab_sit">Sit</string>
     <string name="tab_today">Today</string>
     <string name="tab_log">Log</string>
@@ -72,6 +72,61 @@
     <string name="session_sitting">Sitting</string>
     <string name="session_until">Until %1$s</string>
     <string name="session_hold">Hold anywhere to end</string>
+
+    <!-- ============================================================ -->
+    <!-- Breathing: its tab, its settings, and the breathing screen -->
+
+    <string name="tab_breathe">Breathe</string>
+    <!-- Under the figure "4 · 7 · 8": what each number is -->
+    <string name="breath_in_short">in</string>
+    <string name="breath_hold_short">hold</string>
+    <string name="breath_out_short">out</string>
+    <!-- Holding with the lungs empty, after breathing out -->
+    <string name="breath_rest_short">hold</string>
+    <!-- Under the figure: "in · hold · out, 3 breaths a minute" -->
+    <string name="breath_line">%1$s, %2$s</string>
+    <plurals name="breaths_a_minute">
+        <item quantity="one">%1$d breath a minute</item>
+        <item quantity="other">%1$d breaths a minute</item>
+    </plurals>
+    <!-- For a pattern slower than two breaths a minute -->
+    <plurals name="breath_every_seconds">
+        <item quantity="one">one breath every second</item>
+        <item quantity="other">one breath every %1$d seconds</item>
+    </plurals>
+    <!-- The pattern with equal sides: in, hold, out, hold -->
+    <string name="breath_box">Box</string>
+    <string name="breath_other_title">Your own pattern</string>
+    <string name="breath_field_in">Breathe in (seconds)</string>
+    <string name="breath_field_hold">Hold full (seconds)</string>
+    <string name="breath_field_out">Breathe out (seconds)</string>
+    <string name="breath_field_rest">Hold empty (seconds)</string>
+    <string name="breath_other_range">In and out 1 to %1$d seconds, holds 0 to %1$d.</string>
+    <string name="breath_length">Length</string>
+    <!-- Under Length: "5 minutes, 16 rounds" -->
+    <string name="breath_length_value">%1$s, %2$s</string>
+    <string name="breath_cue">Cue</string>
+    <string name="cue_vibrate">Vibrate</string>
+    <string name="cue_tone">Soft tone</string>
+    <string name="cue_both">Vibrate and tone</string>
+    <string name="cue_screen">Screen only</string>
+    <!-- Said large on the breathing screen -->
+    <string name="breath_now_in">Breathe in</string>
+    <string name="breath_now_hold">Hold</string>
+    <string name="breath_now_out">Breathe out</string>
+    <string name="breath_round">Round %1$d of %2$d</string>
+    <string name="breath_done">Done</string>
+    <plurals name="breath_done_rounds">
+        <item quantity="one">%1$d round</item>
+        <item quantity="other">%1$d rounds</item>
+    </plurals>
+    <string name="breath_tap_close">Tap anywhere to close</string>
+    <!-- At the foot of the breathing screen when a sitting follows the breathing -->
+    <string name="breath_hold_to_sit">Hold anywhere to begin sitting</string>
+    <!-- Breathing as the warm-up of a sitting: a choice in the Sit tab's Warm-up, "Breathe 2 minutes" -->
+    <string name="sit_warmup_breathe">Breathe %1$s</string>
+    <!-- Under Warm-up on the Sit tab: "Breathe 4 · 7 · 8, 2 minutes" -->
+    <string name="sit_warmup_breathe_row">Breathe %1$s, %2$s</string>
 
     <!-- The notification while a sitting runs -->
     <string name="channel_sitting">While sitting</string>
@@ -142,7 +197,7 @@
     </plurals>
     <!-- "4 sittings, 80 min" -->
     <string name="stats_sittings_minutes">%1$s, %2$s</string>
-    <string name="stats_tap_a_day">A press on a day ticks it, or takes the tick off.</string>
+    <string name="stats_tap_a_day">A press on a day ticks it, a second marks it a rest day (the dash), a third clears it.</string>
     <string name="stats_minutes_per_day">Minutes a day</string>
 
     <!-- ============================================================ -->
@@ -195,7 +250,7 @@
     <string name="about_no_browser_address">No browser is installed. The address is %1$s.</string>
     <string name="about_what_head">Practice</string>
     <string name="about_privacy_head">Privacy</string>
-    <string name="about_privacy">This app collects nothing and sends nothing anywhere: it has no internet permission. Your habits, ticks, the log of sittings with any notes, and its settings stay in its own private storage on the phone; uninstalling removes them, and the app is not included in phone backups. Save a backup writes them as one file only where you choose, when you press it. Its permissions are for the bells only: exact alarms so they ring on time, a foreground service and wake lock so they ring with the screen off, a notification while a sitting is under way, and, only if you switch it on, Do Not Disturb access to set alarms only during a sitting. There are no ads, no analytics and no tracking.</string>
+    <string name="about_privacy">This app collects nothing and sends nothing anywhere: it has no internet permission. Your habits, ticks, the log of sittings with any notes, and its settings stay in its own private storage on the phone; uninstalling removes them, and the app is not included in phone backups. Save a backup writes them as one file only where you choose, when you press it. Its permissions are for the bells and the breathing cues only: exact alarms so the bells ring on time, a foreground service and wake lock so they ring with the screen off, a notification while a sitting is under way, vibration to mark each breath when you choose that cue, and, only if you switch it on, Do Not Disturb access to set alarms only during a sitting. There are no ads, no analytics and no tracking.</string>
     <string name="about_terms_head">Terms</string>
     <string name="about_terms">This app is free software under the GNU General Public License v3. It comes with no warranty, to the extent the law allows. It is a timer and a diary, not therapy or medical advice, and not a substitute for care.</string>
     <string name="habit_name_needed">Give it a name.</string>
@@ -207,4 +262,58 @@
     <string name="licences_full_gpl">GNU General Public License v3 (full text)</string>
     <string name="licences_full_apache">Apache License 2.0 (full text)</string>
     <string name="licences_full_ofl">SIL Open Font License 1.1 (full text)</string>
+    <!-- ============================================================ -->
+    <!-- 0.2.0: rest days, the last-30 line, cues, and sittings added by hand -->
+
+    <!-- Long press on a habit on Today: mark today -->
+    <string name="mark_done_today">Done today</string>
+    <string name="mark_rest_today">Rest today</string>
+    <string name="mark_clear">Clear</string>
+    <string name="mark_clear_rest">Clear rest</string>
+    <string name="mark_rest_note">A rest day keeps the streak going without adding to it.</string>
+    <!-- Meditation's dialog when today already has a sitting -->
+    <string name="mark_sat_today">Today\'s sitting has ticked it.</string>
+    <string name="close">Close</string>
+    <!-- Screen-reader state of a rested day -->
+    <string name="day_rested">Rested</string>
+    <!-- Under meditation's month of days -->
+    <string name="stats_tap_a_day_meditation">A press on a day with no sitting marks it a rest day (the dash), or clears it.</string>
+    <!-- The gentler measure: "18 of the last 30 days" -->
+    <string name="recent_line">%1$s of the last %2$s days</string>
+    <!-- On a habit's page when nothing was done in that time: a new habit, most often -->
+    <string name="recent_none">Not yet in the last %1$s days</string>
+    <!-- Under the big figure when it is the last-30 count: "of the last 30 days" -->
+    <string name="recent_label">of the last %1$s days</string>
+    <!-- Added to the last-30 line: "18 of the last 30 days, 2 rested" -->
+    <plurals name="recent_rested">
+        <item quantity="one">%1$s, %2$s rested</item>
+        <item quantity="other">%1$s, %2$s rested</item>
+    </plurals>
+    <!-- A cue before the habit's line: "After breakfast · 4 days in a row" -->
+    <string name="cue_and_rate">%1$s · %2$s</string>
+    <!-- The habit dialog: when or after what it is done -->
+    <string name="habit_cue">When</string>
+    <string name="habit_cue_hint">after breakfast</string>
+    <!-- Settings -->
+    <string name="settings_show_streaks">Show streaks</string>
+    <string name="settings_show_streaks_note">When off, each habit shows the days done in the last 30 instead.</string>
+    <!-- The log: a sitting added by hand, or a change to one -->
+    <string name="log_add">Add a sitting</string>
+    <string name="log_add_title">Add a sitting</string>
+    <string name="log_edit_title">Change the sitting</string>
+    <string name="log_today">Today</string>
+    <string name="cd_previous_day">Previous day</string>
+    <string name="cd_next_day">Next day</string>
+    <string name="log_hour">Hour</string>
+    <string name="log_minute">Minute</string>
+    <string name="log_am">AM</string>
+    <string name="log_pm">PM</string>
+    <string name="log_length">Length (minutes)</string>
+    <string name="log_check_time">That is not a time on this clock.</string>
+    <string name="log_not_yet">That time has not come yet.</string>
+    <string name="log_check_length">Give the length in whole minutes, 1 to %1$d.</string>
+    <!-- A breathing session in the log: "Breathing · 4 · 7 · 8 · 5 min" -->
+    <string name="log_breathing_pattern">Breathing · %1$s · %2$s</string>
+    <!-- When the pattern cannot be read: "Breathing · 5 min" -->
+    <string name="log_breathing">Breathing · %1$s</string>
 </resources>

@@ -130,4 +130,55 @@ class StatsTest {
         assertEquals(1200, Stats.secondsByDay(sessions, zone)[LocalDate.of(2026, 10, 17)])
         assertEquals(2 to 1200, Stats.sat(sessions, zone, LocalDate.of(2026, 10, 17), LocalDate.of(2026, 10, 17)))
     }
+
+    // ---- rest days and the gentler measure (0.2.0)
+
+    @Test fun aRestDayBridgesTheStreakWithoutCounting() {
+        // Done today, 1 and 3 days ago; 2 days ago rested: three days done, unbroken.
+        assertEquals(3, Stats.dailyStreak(days(0, 1, 3), today, rest = days(2)))
+        assertEquals(1 + 1, Stats.dailyStreak(days(0, 1, 3), today))
+    }
+
+    @Test fun restAloneIsNoStreak() {
+        assertEquals(0, Stats.dailyStreak(emptySet(), today, rest = days(0, 1, 2)))
+    }
+
+    @Test fun restingTodayKeepsYesterdaysRun() {
+        assertEquals(2, Stats.dailyStreak(days(1, 2), today, rest = days(0)))
+    }
+
+    @Test fun longestRunIsBridgedByRest() {
+        assertEquals(4, Stats.longestDaily(days(10, 9, 7, 6), today, rest = days(8)))
+        assertEquals(2, Stats.longestDaily(days(10, 9, 7, 6), today))
+    }
+
+    @Test fun aWeekShortOnlyByRestNeitherBreaksNorCounts() {
+        val sun = DayOfWeek.SUNDAY
+        // 3 a week. This week (11-17 Oct): 3 done. Last week (4-10): 2 done + 1 rested. The week before (27 Sep - 3 Oct): 3 done.
+        val done = setOf(11L, 13L, 15L).map { LocalDate.of(2026, 10, it.toInt()) } +
+            setOf(5, 7).map { LocalDate.of(2026, 10, it) } +
+            setOf(LocalDate.of(2026, 9, 28), LocalDate.of(2026, 9, 30), LocalDate.of(2026, 10, 2))
+        val rest = setOf(LocalDate.of(2026, 10, 9))
+        assertEquals(2, Stats.weeklyStreak(done.toSet(), 3, today, sun, rest))
+        assertEquals(1, Stats.weeklyStreak(done.toSet(), 3, today, sun))
+        assertEquals(2, Stats.longestWeekly(done.toSet(), 3, today, sun, rest))
+    }
+
+    @Test fun recentCountsTheLastThirtyDays() {
+        val r = Stats.recent(days(0, 1, 5, 29, 30), today, rest = days(2, 3, 1))
+        assertEquals(4, r.done)          // 30 days ago is outside
+        assertEquals(2, r.rested)        // a day both done and rested counts as done
+        assertEquals(30, r.span)
+    }
+
+    @Test fun breathingIsLoggedButDoesNotTickMeditation() {
+        val zone = ZoneId.of("America/New_York")
+        val at = LocalDateTime.of(2026, 10, 17, 7, 0).atZone(zone).toInstant().toEpochMilli()
+        val sessions = listOf(
+            Session(1, at, 300, 300, "", Session.BREATHE, "4,7,8,0"),
+            Session(2, at - 86_400_000L, 600, 600, ""),
+        )
+        assertEquals(setOf(LocalDate.of(2026, 10, 16)), Stats.sittingDays(sessions, zone))
+        assertEquals(1 to 600, Stats.sat(sessions, zone, LocalDate.of(2026, 10, 1), today))
+    }
 }

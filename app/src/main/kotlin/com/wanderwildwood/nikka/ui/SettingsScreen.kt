@@ -44,6 +44,7 @@ fun SettingsScreen(c: AppState, onBack: () -> Unit) {
     var v by remember { mutableIntStateOf(0) }
     var about by remember { mutableStateOf(false) }
     var ringing by remember { mutableStateOf(false) }
+    var showStreaks by remember { mutableStateOf(prefs.showStreaks) }
 
     // Read again on every return from the phone's settings, where these are changed.
     var checks by remember { mutableIntStateOf(0) }
@@ -125,6 +126,12 @@ fun SettingsScreen(c: AppState, onBack: () -> Unit) {
                     prefs.doNotDisturb = on
                     if (on && !policy) open(Intent(AndroidSettings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
                     v++
+                }
+            }
+            item(key = "streaks") {
+                SwitchRow(stringResource(R.string.settings_show_streaks), showStreaks, stringResource(R.string.settings_show_streaks_note)) { on ->
+                    prefs.showStreaks = on
+                    showStreaks = on
                 }
             }
             item(key = "backup") { Heading(stringResource(R.string.settings_backup_heading)) }

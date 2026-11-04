@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import com.mudita.mmd.components.text.TextMMD
 import com.mudita.mmd.components.top_app_bar.TopAppBarMMD
 import com.wanderwildwood.nikka.R
+import com.wanderwildwood.nikka.data.Prefs
 import com.wanderwildwood.nikka.data.Stats
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -49,9 +50,10 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 /**
- * One habit's history: its current and longest streak, totals for this week, this month and all
- * time, and a month of days as squares, filled for done and outlined for not. Meditation adds
- * the minutes sat on each of the last seven days.
+ * One habit's history: its current and longest streak, the days done in the last 30, totals for
+ * this week, this month and all time, and a month of days as squares: filled for done, outlined
+ * for not, outlined with a dash for a rest day. Meditation adds the minutes sat on each of the
+ * last seven days.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,7 +67,10 @@ fun HabitScreen(c: AppState, id: Long, onBack: () -> Unit) {
     }
     val zone = ZoneId.systemDefault()
     val days = remember(c.version, id) { doneDays(c, habit) }
-    val s = remember(days, c.today, habit.perWeek) { Stats.summary(days, habit.perWeek, c.today, c.firstDay) }
+    val rest = remember(c.version, id) { c.store.rests(id) }
+    val s = remember(days, rest, c.today, habit.perWeek) { Stats.summary(days, habit.perWeek, c.today, c.firstDay, rest) }
+    val recent = remember(days, rest, c.today) { Stats.recent(days, c.today, rest) }
+    val showStreaks = remember { Prefs(context).showStreaks }
     val sessions = remember(c.version, habit.builtin) { if (habit.builtin) c.store.sessions() else emptyList() }
     var month by remember { mutableStateOf(YearMonth.from(c.today)) }
     var editing by remember { mutableStateOf(false) }
@@ -84,9 +89,42 @@ fun HabitScreen(c: AppState, id: Long, onBack: () -> Unit) {
         PagedColumn(Modifier.padding(padding).fillMaxSize(), state = state, contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 20.dp, end = 12.dp)) {
             item(key = "streaks") {
                 Spacer(Modifier.height(12.dp))
-                Row(Modifier.fillMaxWidth()) {
-                    Figure(s.streak.toString(), streakWords(s.streak, s.inWeeks, current = true), Modifier.weight(1f), "streak")
-                    Figure(s.longest.toString(), streakWords(s.longest, s.inWeeks, current = false), Modifier.weight(1f), "longest")
+                // A run under way leads, with the last 30 days on a line beneath. With no run
+                // under way, or streaks hidden, the last 30 days take the big figure: never a 0
+                // in a row to look at.
+                val running = showStreaks && s.streak > 0
+                val longest = showStreaks && s.longest > 0
+                if (!running && !longest && recent.done == 0) {
+                    // Nothing done in the last 30 days, a new habit most often: a plain line,
+                    // not a large 0.
+                    TextMMD(
+                        text = if (recent.rested == 0) stringResource(R.string.recent_none, recent.span.toString())
+                        else pluralStringResource(R.plurals.recent_rested, recent.rested, stringResource(R.string.recent_none, recent.span.toString()), recent.rested.toString()),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.testTag("recent"),
+                    )
+                } else {
+                    Row(Modifier.fillMaxWidth()) {
+                        if (running) {
+                            Figure(s.streak.toString(), streakWords(s.streak, s.inWeeks, current = true), Modifier.weight(1f), "streak")
+                        } else {
+                            Figure(recent.done.toString(), recentWords(null, recent), Modifier.weight(1f), "recent")
+                        }
+                        // Without a second figure the first has the width, so its label does not wrap early.
+                        if (longest) {
+                            Figure(s.longest.toString(), streakWords(s.longest, s.inWeeks, current = false), Modifier.weight(1f), "longest")
+                        }
+                    }
+                }
+                if (running) {
+                    TextMMD(
+                        text = recentWords(recent.done.toString(), recent),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(top = 8.dp).testTag("recent_line"),
+                    )
+                }
+                if (habit.cue.isNotBlank()) {
+                    TextMMD(text = cueLabel(habit.cue), style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 4.dp))
                 }
                 if (!habit.daily) {
                     TextMMD(
@@ -111,12 +149,26 @@ fun HabitScreen(c: AppState, id: Long, onBack: () -> Unit) {
                     today = c.today,
                     firstDay = c.firstDay,
                     done = days,
+                    rest = rest,
                     onMonth = { month = it },
-                    onDay = if (habit.builtin) null else { d -> c.store.setTick(habit.id, d, d !in days) },
+                    canPress = { d -> nextMark(markOf(d, days, rest), habit.builtin) != null },
+                    onDay = { d ->
+                        when (nextMark(markOf(d, days, rest), habit.builtin)) {
+                            DayMark.DONE -> c.store.setTick(habit.id, d, true)
+                            DayMark.RESTED -> c.store.setRest(habit.id, d, true)
+                            DayMark.NONE -> {
+                                c.store.setRest(habit.id, d, false)
+                                if (!habit.builtin) c.store.setTick(habit.id, d, false)
+                            }
+                            null -> Unit
+                        }
+                    },
                 )
-                if (!habit.builtin) {
-                    TextMMD(text = stringResource(R.string.stats_tap_a_day), style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(top = 6.dp))
-                }
+                TextMMD(
+                    text = stringResource(if (habit.builtin) R.string.stats_tap_a_day_meditation else R.string.stats_tap_a_day),
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier.padding(top = 6.dp),
+                )
             }
             if (habit.builtin) {
                 item(key = "minutes") {
@@ -139,13 +191,24 @@ fun HabitScreen(c: AppState, id: Long, onBack: () -> Unit) {
         }
     }
     if (editing) {
-        HabitDialog(habit, onSave = { name, perWeek -> c.store.updateHabit(habit.id, if (habit.builtin) "" else name, perWeek) }, onDismiss = { editing = false },
+        HabitDialog(habit, onSave = { name, perWeek, cue -> c.store.updateHabit(habit.id, if (habit.builtin) "" else name, perWeek, cue) }, onDismiss = { editing = false },
             onDelete = {
                 c.store.deleteHabit(habit.id)
                 onBack()
             },
         )
     }
+}
+
+/**
+ * "18 of the last 30 days, 2 rested", or with [count] null the label under the big figure:
+ * "of the last 30 days, 2 rested".
+ */
+@Composable
+private fun recentWords(count: String?, r: Stats.Recent): String {
+    val base = if (count == null) stringResource(R.string.recent_label, r.span.toString())
+    else stringResource(R.string.recent_line, count, r.span.toString())
+    return if (r.rested == 0) base else pluralStringResource(R.plurals.recent_rested, r.rested, base, r.rested.toString())
 }
 
 @Composable
@@ -199,8 +262,9 @@ private fun MinutesRow(day: String, seconds: Int, most: Int) {
 
 /**
  * A month as squares, one per day: filled where the habit was done, outlined where it was not,
- * and nothing drawn for days still to come. Today's square has a heavier edge. [onDay] ticks a
- * past day by hand; null where the days are ticked by something else.
+ * outlined with a dash under the number where it was rested, and nothing drawn for days still
+ * to come. Today's square has a heavier edge. [onDay] marks a day by hand, on the days
+ * [canPress] allows.
  */
 @Composable
 fun MonthGrid(
@@ -208,8 +272,10 @@ fun MonthGrid(
     today: LocalDate,
     firstDay: DayOfWeek,
     done: Set<LocalDate>,
+    rest: Set<LocalDate>,
     onMonth: (YearMonth) -> Unit,
-    onDay: ((LocalDate) -> Unit)?,
+    canPress: (LocalDate) -> Boolean,
+    onDay: (LocalDate) -> Unit,
 ) {
     val thisMonth = YearMonth.from(today)
     Column(Modifier.fillMaxWidth()) {
@@ -241,7 +307,7 @@ fun MonthGrid(
             Row(Modifier.fillMaxWidth()) {
                 for (day in week) {
                     Box(Modifier.weight(1f).height(48.dp)) {
-                        if (day != null) DayCell(day, today, day in done, onDay)
+                        if (day != null) DayCell(day, today, markOf(day, done, rest), if (canPress(day)) onDay else null)
                     }
                 }
             }
@@ -251,10 +317,17 @@ fun MonthGrid(
 
 
 @Composable
-private fun DayCell(day: LocalDate, today: LocalDate, done: Boolean, onDay: ((LocalDate) -> Unit)?) {
+private fun DayCell(day: LocalDate, today: LocalDate, mark: DayMark, onDay: ((LocalDate) -> Unit)?) {
     val shape = RoundedCornerShape(4.dp)
     val future = day.isAfter(today)
-    val state = stringResource(if (done) R.string.day_done else R.string.day_not_done)
+    val done = mark == DayMark.DONE
+    val state = stringResource(
+        when (mark) {
+            DayMark.DONE -> R.string.day_done
+            DayMark.RESTED -> R.string.day_rested
+            DayMark.NONE -> R.string.day_not_done
+        },
+    )
     // The whole 48 dp cell is the target; the square drawn inside it is inset so squares keep their gap.
     Box(
         Modifier
@@ -283,6 +356,17 @@ private fun DayCell(day: LocalDate, today: LocalDate, done: Boolean, onDay: ((Lo
                 style = MaterialTheme.typography.labelSmall,
                 color = if (done) Color.White else Color.Black,
             )
+            if (mark == DayMark.RESTED && !future) {
+                // Under the number rather than through it, so the date still reads.
+                Box(
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 5.dp)
+                        .width(14.dp)
+                        .height(2.5.dp)
+                        .background(Color.Black),
+                )
+            }
         }
     }
 }

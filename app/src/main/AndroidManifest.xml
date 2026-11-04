@@ -14,6 +14,8 @@
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <!-- Asked for by Android 13 and later; Android 12, the Kompakt's, has notifications on. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- A buzz at each change of breath, when the breathing cue is set to vibrate. -->
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <queries>
         <!-- The other apps that act on selected text, so a field's selection menu can list them

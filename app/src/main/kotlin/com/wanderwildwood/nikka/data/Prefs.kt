@@ -1,6 +1,8 @@
 package com.wanderwildwood.nikka.data
 
 import android.content.Context
+import com.wanderwildwood.nikka.sit.Breath
+import com.wanderwildwood.nikka.sit.BreathCue
 import com.wanderwildwood.nikka.sit.Plan
 
 /**
@@ -23,6 +25,37 @@ class Prefs(context: Context) {
     var intervalMin: Int
         get() = p.getInt("interval", 0)
         set(v) = p.edit().putInt("interval", v).apply()
+
+    /** The Sit tab set for breathing rather than sitting. */
+    var breathe: Boolean
+        get() = p.getBoolean("breathe", false)
+        set(v) = p.edit().putBoolean("breathe", v).apply()
+
+    var breath: Breath
+        get() = Breath(p.getInt("breath_in", 4), p.getInt("breath_hold", 7), p.getInt("breath_out", 8), p.getInt("breath_rest", 0))
+            .takeIf { it.valid() } ?: Breath.FOUR_SEVEN_EIGHT
+        set(v) = p.edit().putInt("breath_in", v.inSec).putInt("breath_hold", v.holdSec)
+            .putInt("breath_out", v.outSec).putInt("breath_rest", v.restSec).apply()
+
+    /** Minutes of breathing, rounded up to whole rounds. */
+    var breathMinutes: Int
+        get() = p.getInt("breath_minutes", 5)
+        set(v) = p.edit().putInt("breath_minutes", v).apply()
+
+    /** How each change of breath is marked: see BreathCue. */
+    var breathCue: Int
+        get() = p.getInt("breath_cue", BreathCue.VIBRATE)
+        set(v) = p.edit().putInt("breath_cue", v).apply()
+
+    /** Streaks shown beside each habit; off shows only the days done in the last 30. */
+    var showStreaks: Boolean
+        get() = p.getBoolean("show_streaks", true)
+        set(v) = p.edit().putBoolean("show_streaks", v).apply()
+
+    /** Minutes of breathing before a sitting, as its warm-up; 0 for none. */
+    var breatheFirstMin: Int
+        get() = p.getInt("breathe_first", 0)
+        set(v) = p.edit().putInt("breathe_first", v).apply()
 
     var doNotDisturb: Boolean
         get() = p.getBoolean("dnd", false)
