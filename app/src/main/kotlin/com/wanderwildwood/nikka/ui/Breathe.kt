@@ -145,7 +145,7 @@ private fun FittedFigure(text: String, modifier: Modifier) {
 /** "in · hold · out, 3 breaths a minute" */
 @Composable
 private fun breathLine(breath: Breath): String {
-    val names = breath.phases.joinToString(" · ") {
+    val names = breath.phases.map {
         stringResource(
             when (it.kind) {
                 Breath.Kind.IN -> R.string.breath_in_short
@@ -154,7 +154,7 @@ private fun breathLine(breath: Breath): String {
                 Breath.Kind.REST -> R.string.breath_rest_short
             },
         )
-    }
+    }.joinToString(" · ")
     val sec = breath.roundSec
     val pace = if (sec <= 30) {
         val n = Math.round(60.0 / sec).toInt()
