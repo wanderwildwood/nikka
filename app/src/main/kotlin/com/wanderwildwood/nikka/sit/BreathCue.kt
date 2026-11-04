@@ -30,6 +30,22 @@ class BreathCue(context: Context, private val cue: Int) {
             )
             .build()
     } else null
+    // The tones load in the background, and the first phase is cued the moment a session starts,
+    // before they are ready. A tone asked for before it has loaded plays as soon as it has.
+    private val loaded = HashSet<Int>()
+    private var waiting = 0
+
+    init {
+        pool?.setOnLoadCompleteListener { p, id, status ->
+            if (status != 0) return@setOnLoadCompleteListener
+            loaded += id
+            if (id == waiting) {
+                waiting = 0
+                p.play(id, 1f, 1f, 1, 0, 1f)
+            }
+        }
+    }
+
     private val inId = pool?.load(app, R.raw.breath_in, 1) ?: 0
     private val holdId = pool?.load(app, R.raw.breath_hold, 1) ?: 0
     private val outId = pool?.load(app, R.raw.breath_out, 1) ?: 0
@@ -52,7 +68,13 @@ class BreathCue(context: Context, private val cue: Int) {
             Breath.Kind.OUT -> outId
             else -> holdId
         }
-        if (id != 0) pool?.play(id, 1f, 1f, 1, 0, 1f)
+        if (id == 0) return
+        if (id in loaded) {
+            waiting = 0
+            pool?.play(id, 1f, 1f, 1, 0, 1f)
+        } else {
+            waiting = id
+        }
     }
 
     /** The session is over: the bowl once, or a long buzz, as the cue was chosen. */
