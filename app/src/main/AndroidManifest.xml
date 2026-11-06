@@ -26,6 +26,8 @@
         </intent>
         <!-- DuraSpeed, so Settings shows its row only on a phone that has it. -->
         <package android:name="com.mediatek.duraspeed" />
+        <!-- Files (Cabinet), so a backup is saved and restored on its e-ink screens when it is there. -->
+        <package android:name="com.wanderwildwood.tana" />
     </queries>
 
     <queries><intent><action android:name="android.intent.action.VIEW"/><category android:name="android.intent.category.BROWSABLE"/><data android:scheme="https"/></intent></queries>
