@@ -86,7 +86,7 @@ fun HabitScreen(c: AppState, id: Long, onBack: () -> Unit) {
         },
     ) { padding ->
         val state = rememberLazyListState()
-        PagedColumn(Modifier.padding(padding).fillMaxSize(), state = state, contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 20.dp, end = 12.dp)) {
+        PagedColumn(Modifier.padding(padding).fillMaxSize(), state = state, contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 20.dp, end = 12.dp), showCutRow = true) {
             item(key = "streaks") {
                 Spacer(Modifier.height(12.dp))
                 // A run under way leads, with the last 30 days on a line beneath. With no run

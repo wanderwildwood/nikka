@@ -94,7 +94,7 @@ fun TodayTab(c: AppState, onHabit: (Long) -> Unit, onSit: () -> Unit) {
     var adding by remember { mutableStateOf(false) }
     var marking by remember { mutableStateOf<TodayRow?>(null) }
     val state = rememberLazyListState()
-    PagedColumn(Modifier.fillMaxSize(), state = state) {
+    PagedColumn(Modifier.fillMaxSize(), state = state, showCutRow = true) {
         item(key = "day") {
             Heading(Words.longDay(c.today), Modifier.padding(horizontal = 20.dp))
         }

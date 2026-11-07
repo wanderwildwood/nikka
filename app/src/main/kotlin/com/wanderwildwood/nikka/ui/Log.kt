@@ -59,7 +59,7 @@ fun LogTab(c: AppState) {
     var open by remember { mutableStateOf<Session?>(null) }
     var adding by remember { mutableStateOf(false) }
     val state = rememberLazyListState()
-    PagedColumn(Modifier.fillMaxSize(), state = state) {
+    PagedColumn(Modifier.fillMaxSize(), state = state, showCutRow = true) {
         // At the top, not the foot: the log runs newest first, and its foot can be pages away.
         item(key = "add") {
             Row(
