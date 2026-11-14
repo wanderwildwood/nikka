@@ -133,6 +133,11 @@ fun SettingsScreen(c: AppState, onBack: () -> Unit) {
                     showStreaks = on
                 }
             }
+            item(key = "dark") {
+                SwitchRow(stringResource(R.string.settings_dark), DarkMode.on, stringResource(R.string.settings_dark_note)) {
+                    DarkMode.set(context, it)
+                }
+            }
             item(key = "backup") { Heading(stringResource(R.string.settings_backup_heading)) }
             item(key = "save") {
                 SettingRow(stringResource(R.string.settings_save_backup), stringResource(R.string.settings_save_backup_note)) {
