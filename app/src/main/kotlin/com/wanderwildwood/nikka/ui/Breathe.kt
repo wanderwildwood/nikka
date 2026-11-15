@@ -278,7 +278,7 @@ fun BreathingScreen(run: BreathRun) {
                         else -> R.string.breath_now_hold
                     },
                 ),
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.testTag("breath_phase"),
             )
@@ -310,7 +310,7 @@ fun BreathDoneScreen(rounds: Int) {
             .pointerInput(Unit) { detectTapGestures(onTap = { Breathing.close() }) },
     ) {
         Column(Modifier.align(Alignment.Center).padding(horizontal = 24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            TextMMD(text = stringResource(R.string.breath_done), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Medium)
+            TextMMD(text = stringResource(R.string.breath_done), style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Medium)
             if (rounds > 0) {
                 Spacer(Modifier.height(8.dp))
                 TextMMD(text = pluralStringResource(R.plurals.breath_done_rounds, rounds, rounds), style = MaterialTheme.typography.bodyLarge)
