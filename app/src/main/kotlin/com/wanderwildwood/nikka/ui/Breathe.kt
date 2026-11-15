@@ -55,6 +55,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 
 private val BREATH_MINUTES = listOf(1, 2, 3, 5, 10, 15)
 
@@ -194,10 +198,20 @@ private fun OtherBreathDialog(breath: Breath, onSet: (Breath) -> Unit, onDismiss
     val value = Breath(num(inText, breath.inSec), num(holdText, breath.holdSec), num(outText, breath.outSec), num(restText, breath.restSec))
         .takeIf { it.valid() }
     val digits = { s: String -> s.filter(Char::isDigit).take(2) }
+    val first = remember { FocusRequester() }
     EInkDialog(onDismiss = onDismiss) {
+        // The field is what the dialog is for: it takes the focus as it opens and the keyboard
+        // comes up. Asked from inside the dialog, a frame after it is drawn: the field lives in
+        // the dialog's own window, which a request from the screen beneath does not reach.
+        val keyboardNow = LocalSoftwareKeyboardController.current
+        LaunchedEffect(Unit) {
+            withFrameNanos { }
+            runCatching { first.requestFocus() }
+            keyboardNow?.show()
+        }
         TextMMD(text = stringResource(R.string.breath_other_title), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Field(stringResource(R.string.breath_field_in), inText, { inText = digits(it) }, hint = breath.inSec.toString(), number = true, modifier = Modifier.weight(1f))
+            Field(stringResource(R.string.breath_field_in), inText, { inText = digits(it) }, hint = breath.inSec.toString(), number = true, modifier = Modifier.weight(1f).focusRequester(first))
             Field(stringResource(R.string.breath_field_hold), holdText, { holdText = digits(it) }, hint = breath.holdSec.toString(), number = true, modifier = Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {

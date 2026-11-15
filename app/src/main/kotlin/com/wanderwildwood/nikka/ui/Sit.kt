@@ -61,6 +61,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 
 private val PRESETS = listOf(5, 10, 15, 20, 30, 45, 60)
 private val WARMUPS = listOf(0, 10, 30, 60, 120)
@@ -192,16 +196,25 @@ private fun OtherLengthDialog(minutes: Int, onSet: (Int) -> Unit, onDismiss: () 
     var text by remember { mutableStateOf("") }
     var tried by remember { mutableStateOf(false) }
     val value = (text.trim().toIntOrNull() ?: minutes).takeIf { it in 1..MAX_MINUTES }
+    val field = remember { FocusRequester() }
+    val set: () -> Unit = { if (value != null) { onSet(value); onDismiss() } else tried = true }
     EInkDialog(onDismiss = onDismiss) {
+        // The field is what the dialog is for: it takes the focus as it opens and the keyboard
+        // comes up. Asked from inside the dialog, a frame after it is drawn: the field lives in
+        // the dialog's own window, which a request from the screen beneath does not reach.
+        val keyboardNow = LocalSoftwareKeyboardController.current
+        LaunchedEffect(Unit) {
+            withFrameNanos { }
+            runCatching { field.requestFocus() }
+            keyboardNow?.show()
+        }
         TextMMD(text = stringResource(R.string.sit_other_title), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-        Field(stringResource(R.string.sit_other_minutes), text, { text = it.filter(Char::isDigit).take(3) }, hint = minutes.toString(), number = true)
+        Field(stringResource(R.string.sit_other_minutes), text, { text = it.filter(Char::isDigit).take(3) }, hint = minutes.toString(), number = true, modifier = Modifier.focusRequester(field), onDone = set)
         if (tried && value == null) {
             TextMMD(text = stringResource(R.string.sit_other_range, MAX_MINUTES), style = MaterialTheme.typography.labelSmall)
         }
         Spacer(Modifier.height(8.dp))
-        DialogButton(stringResource(R.string.set), filled = true) {
-            if (value != null) { onSet(value); onDismiss() } else tried = true
-        }
+        DialogButton(stringResource(R.string.set), filled = true) { set() }
         DialogButton(stringResource(R.string.cancel), onClick = onDismiss)
     }
 }

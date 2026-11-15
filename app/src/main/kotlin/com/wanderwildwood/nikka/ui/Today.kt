@@ -45,6 +45,11 @@ import com.wanderwildwood.nikka.data.Prefs
 import com.wanderwildwood.nikka.data.Stats
 import java.time.LocalDate
 import java.time.ZoneId
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 
 /** The days a habit was done: ticked by hand, or for meditation, any day with a sitting. */
 fun doneDays(c: AppState, h: Habit): Set<LocalDate> =
@@ -221,7 +226,18 @@ fun HabitDialog(habit: Habit?, onSave: (String, Int, String) -> Unit, onDismiss:
     var perWeek by remember { mutableStateOf(habit?.perWeek?.takeIf { it < 7 } ?: 3) }
     var cue by remember { mutableStateOf(habit?.cue.orEmpty()) }
     var tried by remember { mutableStateOf(false) }
+    val nameField = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
     EInkDialog(onDismiss = onDismiss) {
+        // A new habit starts with its name: the field takes the focus as the dialog opens, asked
+        // from inside the dialog a frame after it is drawn. A habit being changed opens as it is.
+        if (habit == null) {
+            LaunchedEffect(Unit) {
+                withFrameNanos { }
+                runCatching { nameField.requestFocus() }
+                keyboard?.show()
+            }
+        }
         // Its own scope: the dialog is a window of its own, so a touch elsewhere in it disarms.
         ArmedScope(Modifier.fillMaxWidth()) {
             Column(Modifier.fillMaxWidth()) {
@@ -235,7 +251,7 @@ fun HabitDialog(habit: Habit?, onSave: (String, Int, String) -> Unit, onDismiss:
                     fontWeight = FontWeight.Medium,
                 )
                 if (habit?.builtin != true) {
-                    Field(stringResource(R.string.habit_name), name, { name = it.replace('\n', ' ').take(60) }, hint = stringResource(R.string.habit_name_hint))
+                    Field(stringResource(R.string.habit_name), name, { name = it.replace('\n', ' ').take(60) }, hint = stringResource(R.string.habit_name_hint), modifier = Modifier.focusRequester(nameField))
                 }
                 if (tried && name.isBlank() && habit?.builtin != true) {
                     TextMMD(text = stringResource(R.string.habit_name_needed), style = MaterialTheme.typography.labelSmall)
