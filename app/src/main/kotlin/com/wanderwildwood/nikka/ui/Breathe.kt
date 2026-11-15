@@ -51,6 +51,10 @@ import com.wanderwildwood.nikka.sit.BreathCue
 import com.wanderwildwood.nikka.sit.BreathRun
 import com.wanderwildwood.nikka.sit.Breathing
 import kotlinx.coroutines.delay
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
 
 private val BREATH_MINUTES = listOf(1, 2, 3, 5, 10, 15)
 
@@ -83,11 +87,11 @@ fun BreatheTab() {
             for (preset in Breath.PRESETS) {
                 val label = if (preset == Breath.BOX) stringResource(R.string.breath_box)
                 else preset.phases.joinToString("-") { it.sec.toString() }
-                HouseButton(label, { prefs.breath = preset; v++ }, Modifier.weight(1f).testTag("breath_$label"), on = breath == preset)
+                HouseButton(label, { prefs.breath = preset; v++ }, Modifier.weight(1f).testTag("breath_$label").semantics { role = Role.RadioButton; selected = breath == preset }, on = breath == preset)
             }
             HouseButton(
                 stringResource(R.string.sit_other), { pickOther = true },
-                Modifier.weight(1f).testTag("breath_other"), on = breath !in Breath.PRESETS,
+                Modifier.weight(1f).testTag("breath_other").semantics { role = Role.RadioButton; selected = breath !in Breath.PRESETS }, on = breath !in Breath.PRESETS,
             )
         }
         Spacer(Modifier.height(8.dp))

@@ -57,6 +57,10 @@ import com.wanderwildwood.nikka.sit.Plan
 import com.wanderwildwood.nikka.sit.Sitting
 import kotlinx.coroutines.delay
 import java.time.ZoneId
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
 
 private val PRESETS = listOf(5, 10, 15, 20, 30, 45, 60)
 private val WARMUPS = listOf(0, 10, 30, 60, 120)
@@ -168,7 +172,7 @@ fun SitTab(c: AppState) {
 /** A choice: the chosen one a black stone, the others outlined (the house button). */
 @Composable
 private fun Stone(label: String, chosen: Boolean, modifier: Modifier, onClick: () -> Unit) {
-    HouseButton(label, onClick, modifier.testTag("preset_$label"), on = chosen)
+    HouseButton(label, onClick, modifier.testTag("preset_$label").semantics { role = Role.RadioButton; selected = chosen }, on = chosen)
 }
 
 @Composable
