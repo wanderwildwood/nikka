@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
                     ArmedScope {
                         // A debug build names its rows for the emulator tests; a release names none.
                         Box(Modifier.semantics { testTagsAsResourceId = BuildConfig.DEBUG }) {
-                            PracticeApp()
+                            com.wanderwildwood.nikka.ui.NoticeFrame { PracticeApp() }
                         }
                     }
                 }

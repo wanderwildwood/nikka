@@ -6,6 +6,7 @@ import android.media.SoundPool
 import android.os.VibrationEffect
 import android.os.VibratorManager
 import com.wanderwildwood.nikka.R
+import com.wanderwildwood.nikka.ui.Notice
 
 /**
  * The cue at each change of a breath, so it can be followed with the eyes shut: a buzz, a soft
@@ -37,11 +38,14 @@ class BreathCue(context: Context, private val cue: Int) {
 
     init {
         pool?.setOnLoadCompleteListener { p, id, status ->
-            if (status != 0) return@setOnLoadCompleteListener
+            if (status != 0) {
+                failed()
+                return@setOnLoadCompleteListener
+            }
             loaded += id
             if (id == waiting) {
                 waiting = 0
-                p.play(id, 1f, 1f, 1, 0, 1f)
+                if (p.play(id, 1f, 1f, 1, 0, 1f) == 0) failed()
             }
         }
     }
@@ -49,6 +53,15 @@ class BreathCue(context: Context, private val cue: Int) {
     private val inId = pool?.load(app, R.raw.breath_in, 1) ?: 0
     private val holdId = pool?.load(app, R.raw.breath_hold, 1) ?: 0
     private val outId = pool?.load(app, R.raw.breath_out, 1) ?: 0
+
+    // A tone that would not load or play is said once on the screen, where it stays until the
+    // next press; the breathing goes on, cued by the screen and any buzz.
+    private var saidFailed = false
+    private fun failed() {
+        if (saidFailed) return
+        saidFailed = true
+        Notice.say(app, R.string.tones_failed)
+    }
 
     private val tones: Boolean get() = cue == TONE || cue == BOTH
     private val buzz: Boolean get() = cue == VIBRATE || cue == BOTH
@@ -71,7 +84,7 @@ class BreathCue(context: Context, private val cue: Int) {
         if (id == 0) return
         if (id in loaded) {
             waiting = 0
-            pool?.play(id, 1f, 1f, 1, 0, 1f)
+            if (pool?.play(id, 1f, 1f, 1, 0, 1f) == 0) failed()
         } else {
             waiting = id
         }

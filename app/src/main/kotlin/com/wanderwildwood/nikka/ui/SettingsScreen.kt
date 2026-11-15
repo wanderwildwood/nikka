@@ -3,7 +3,6 @@ package com.wanderwildwood.nikka.ui
 import android.app.NotificationManager
 import android.content.Intent
 import android.provider.Settings as AndroidSettings
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Spacer
@@ -60,17 +59,17 @@ fun SettingsScreen(c: AppState, onBack: () -> Unit) {
     }
 
     fun open(intent: Intent) = runCatching { context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
-        .onFailure { Toast.makeText(context, context.getString(R.string.cannot_open), Toast.LENGTH_LONG).show() }
+        .onFailure { Notice.say(context, R.string.cannot_open) }
 
     val save = rememberLauncherForActivityResult(FilesCreateDocument("application/json")) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         runCatching {
             context.contentResolver.openOutputStream(uri, "wt")!!.use { it.write(Backup.write(c.store).toByteArray()) }
-        }.onSuccess { Toast.makeText(context, context.getString(R.string.backup_saved), Toast.LENGTH_SHORT).show() }
+        }.onSuccess { Notice.say(context, R.string.backup_saved) }
             .onFailure {
                 // The picker has already made an empty file; do not leave it behind.
                 runCatching { android.provider.DocumentsContract.deleteDocument(context.contentResolver, uri) }
-                Toast.makeText(context, context.getString(R.string.backup_not_saved), Toast.LENGTH_LONG).show()
+                Notice.say(context, R.string.backup_not_saved)
             }
     }
     val restore = rememberLauncherForActivityResult(FilesOpenDocument(writable = false)) { uri ->
@@ -78,8 +77,8 @@ fun SettingsScreen(c: AppState, onBack: () -> Unit) {
         runCatching {
             val text = context.contentResolver.openInputStream(uri)!!.use { it.readBytes().toString(Charsets.UTF_8) }
             c.store.replaceAll(Backup.read(text))
-        }.onSuccess { Toast.makeText(context, context.getString(R.string.restore_done), Toast.LENGTH_SHORT).show() }
-            .onFailure { Toast.makeText(context, context.getString(R.string.restore_not_ours), Toast.LENGTH_LONG).show() }
+        }.onSuccess { Notice.say(context, R.string.restore_done) }
+            .onFailure { Notice.say(context, R.string.restore_not_ours) }
     }
 
     Scaffold(

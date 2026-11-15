@@ -222,6 +222,10 @@
     <string name="settings_try_bell">Try the bell</string>
     <string name="settings_bell_volume">It rings at the phone\'s alarm volume</string>
     <string name="settings_bell_ringing">Ringing</string>
+    <!-- Said along the foot of the screen when the bowl's sound would not play -->
+    <string name="bell_failed">The bell could not play.</string>
+    <!-- Said along the foot of the screen when the breathing tones would not play -->
+    <string name="tones_failed">The breathing tones could not play.</string>
     <string name="settings_dnd">Do not disturb while sitting</string>
     <string name="settings_dnd_note">Alarms only, so the bells still ring</string>
     <string name="settings_backup_heading">Backup</string>

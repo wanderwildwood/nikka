@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
 import com.wanderwildwood.nikka.R
+import com.wanderwildwood.nikka.ui.Notice
 
 /**
  * The bowl, played on the ALARM stream: its loudness is the phone's alarm volume, so a phone
@@ -24,6 +25,12 @@ object Bell {
     // stopped after a second and a half and nothing said so.
     private val playing = mutableSetOf<MediaPlayer>()
     private val main = Handler(Looper.getMainLooper())
+
+    // A bell that would not play is said on the screen, where it stays until the next press,
+    // rather than leaving a sitting to end in silence with nothing to say why.
+    private fun failed(app: Context) {
+        main.post { Notice.say(app, R.string.bell_failed) }
+    }
 
     fun play(context: Context, end: Boolean, onDone: () -> Unit = {}) {
         val app = context.applicationContext
@@ -54,11 +61,12 @@ object Bell {
                 player.setDataSource(it.fileDescriptor, it.startOffset, it.length)
             }
             player.setOnCompletionListener { mp -> mp.release(); done() }
-            player.setOnErrorListener { mp, _, _ -> mp.release(); done(); true }
+            player.setOnErrorListener { mp, _, _ -> mp.release(); failed(app); done(); true }
             player.prepare()
             player.start()
         } catch (e: Exception) {
             player.release()
+            failed(app)
             done()
         }
     }

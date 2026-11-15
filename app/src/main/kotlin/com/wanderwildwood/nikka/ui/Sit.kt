@@ -135,7 +135,7 @@ fun SitTab(c: AppState) {
                         Intent(AndroidSettings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + context.packageName))
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                     )
-                }.onFailure { android.widget.Toast.makeText(context, context.getString(R.string.cannot_open), android.widget.Toast.LENGTH_LONG).show() }
+                }.onFailure { Notice.say(context, R.string.cannot_open) }
             }
         }
         Spacer(Modifier.weight(1f))
