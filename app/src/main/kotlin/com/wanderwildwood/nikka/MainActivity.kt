@@ -1,5 +1,6 @@
 package com.wanderwildwood.nikka
 
+import com.wanderwildwood.nikka.ui.DarkSelection
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -31,14 +32,14 @@ class MainActivity : ComponentActivity() {
             // A steady cursor: a blinking one is a repaint twice a second on an e-ink panel
             // for as long as a field has focus.
             CompositionLocalProvider(LocalCursorBlinkEnabled provides false) {
-                ThemeMMD(colorScheme = monochrome, typography = houseTypography) {
+                ThemeMMD(colorScheme = monochrome, typography = houseTypography) { DarkSelection {
                     ArmedScope {
                         // A debug build names its rows for the emulator tests; a release names none.
                         Box(Modifier.semantics { testTagsAsResourceId = BuildConfig.DEBUG }) {
                             com.wanderwildwood.nikka.ui.NoticeFrame { PracticeApp() }
                         }
                     }
-                }
+                } }
             }
         }
     }
