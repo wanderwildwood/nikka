@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -35,6 +36,23 @@ private sealed interface Screen {
     data object Settings : Screen
     data class Habit(val id: Long) : Screen
 }
+
+private val ScreenSaver = Saver<Screen, String>(
+    save = {
+        when (it) {
+            Screen.Tabs -> "tabs"
+            Screen.Settings -> "settings"
+            is Screen.Habit -> "habit:${it.id}"
+        }
+    },
+    restore = {
+        when {
+            it == "settings" -> Screen.Settings
+            it.startsWith("habit:") -> it.removePrefix("habit:").toLongOrNull()?.let(Screen::Habit) ?: Screen.Tabs
+            else -> Screen.Tabs
+        }
+    },
+)
 
 /** What the screens share: the store, today, and the first day of the week where the phone is. */
 class AppState(val store: Store, val today: LocalDate, val firstDay: DayOfWeek, val version: Int)
@@ -60,7 +78,9 @@ fun PracticeApp() {
     val firstDay = remember(resumed) { WeekFields.of(Locale.getDefault()).firstDayOfWeek }
     val c = AppState(store, today, firstDay, version)
 
-    var screen by remember { mutableStateOf<Screen>(Screen.Tabs) }
+    // Saved, so Settings and its file pickers are back after Android stops the process while a
+    // picker is open, and the picker's answer still arrives.
+    var screen by rememberSaveable(stateSaver = ScreenSaver) { mutableStateOf<Screen>(Screen.Tabs) }
     var tab by rememberSaveable { mutableIntStateOf(0) }
 
     val plan = running

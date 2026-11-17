@@ -77,11 +77,30 @@ object Backup {
             (0 until a.length()).map { i ->
                 val o = a.getJSONObject(i)
                 Session(
-                    0, Instant.parse(o.getString("start")).toEpochMilli(), o.getInt("planned_seconds"), o.getInt("sat_seconds"),
+                    0, Instant.parse(o.getString("start")).toEpochMilli(), seconds(o.getInt("planned_seconds")), seconds(o.getInt("sat_seconds")),
                     o.optString("note"), o.optString("kind", Session.SIT).ifEmpty { Session.SIT }, o.optString("pattern"),
                 )
             }
         }
         return Contents(habits, sessions)
     }
+
+    /** A sitting's length as a backup gives it, held to between nothing and one day. */
+    private fun seconds(value: Int): Int = value.coerceIn(0, 24 * 60 * 60)
+
+    /** Reads a picked file as text, refusing it once it passes [MAX_BYTES]. */
+    fun readText(input: java.io.InputStream): String {
+        val out = java.io.ByteArrayOutputStream()
+        val buffer = ByteArray(8192)
+        while (true) {
+            val n = input.read(buffer)
+            if (n < 0) break
+            out.write(buffer, 0, n)
+            require(out.size() <= MAX_BYTES) { "too large for a backup" }
+        }
+        return out.toString(Charsets.UTF_8.name())
+    }
+
+    /** Larger than any backup of ours could be. */
+    const val MAX_BYTES = 5 * 1024 * 1024
 }

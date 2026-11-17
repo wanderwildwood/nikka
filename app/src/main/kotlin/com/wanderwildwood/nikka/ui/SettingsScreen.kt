@@ -63,19 +63,26 @@ fun SettingsScreen(c: AppState, onBack: () -> Unit) {
 
     val save = rememberLauncherForActivityResult(FilesCreateDocument("application/json")) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
+        // A file the picker has just made is empty; an existing one chosen to be replaced is not.
+        val wasEmpty = runCatching {
+            context.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.SIZE), null, null, null)?.use {
+                it.moveToFirst() && !it.isNull(0) && it.getLong(0) == 0L
+            } ?: false
+        }.getOrDefault(false)
         runCatching {
-            context.contentResolver.openOutputStream(uri, "wt")!!.use { it.write(Backup.write(c.store).toByteArray()) }
+            val bytes = Backup.write(c.store).toByteArray()
+            context.contentResolver.openOutputStream(uri, "wt")!!.use { it.write(bytes) }
         }.onSuccess { Notice.say(context, R.string.backup_saved) }
             .onFailure {
-                // The picker has already made an empty file; do not leave it behind.
-                runCatching { android.provider.DocumentsContract.deleteDocument(context.contentResolver, uri) }
+                // Do not leave behind the empty file the picker made; a file that was already there stays.
+                if (wasEmpty) runCatching { android.provider.DocumentsContract.deleteDocument(context.contentResolver, uri) }
                 Notice.say(context, R.string.backup_not_saved)
             }
     }
     val restore = rememberLauncherForActivityResult(FilesOpenDocument(writable = false)) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         runCatching {
-            val text = context.contentResolver.openInputStream(uri)!!.use { it.readBytes().toString(Charsets.UTF_8) }
+            val text = context.contentResolver.openInputStream(uri)!!.use { Backup.readText(it) }
             c.store.replaceAll(Backup.read(text))
         }.onSuccess { Notice.say(context, R.string.restore_done) }
             .onFailure { Notice.say(context, R.string.restore_not_ours) }
