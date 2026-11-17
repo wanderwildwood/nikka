@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Makes the app's two bell sounds, res/raw/bowl.ogg (one strike) and res/raw/bowl_end.ogg (three),
-synthesised here rather than recorded, so there is no one else's recording to licence.
+synthesized here rather than recorded, so there is no one else's recording to license.
 
 A singing bowl is a few partials that ring for a long time and die away at different rates: the
 lowest the longest, the highest within a second or two. Each partial is really two modes a hair

@@ -114,8 +114,8 @@ app up.
 The Kompakt's DuraSpeed setting can shut down apps a few minutes after the screen goes dark,
 and an app shut down that way has its alarms canceled. A sitting runs as a foreground service
 for its whole length, but to be sure of the bells, Settings has a row on a Kompakt: **Open
-DuraSpeed**, tap **Open** there, switch Practice on in the list, and press **It's switched
-on**. If DuraSpeed stops the app again later, the row comes back.
+DuraSpeed**, tap **Open** there, switch Practice on in the list, and press **I have done
+this**. If DuraSpeed stops the app again later, the row comes back.
 
 ## What it does not do
 

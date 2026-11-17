@@ -145,7 +145,7 @@ def sheet():
 
 
 def grown(parts, k):
-    """The glyph scaled about its own centre; the stroke stays SW, the ring is not touched."""
+    """The glyph scaled about its own center; the stroke stays SW, the ring is not touched."""
     xs = [x for _, p in parts for x, _ in p]; ys = [y for _, p in parts for _, y in p]
     cx, cy = (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2
     return [(kind, [(cx + (x - cx) * k, cy + (y - cy) * k) for x, y in p]) for kind, p in parts]

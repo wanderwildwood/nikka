@@ -5,7 +5,7 @@ small bowls struck softly, each well under the length of the shortest breath (1 
 died away before the next. In is the highest, out the lowest (the big bowl's own E flat), and a
 hold sits between them, quieter and shorter, a tap rather than a strike.
 
-Synthesised like tools/make-bowl.py, so there is no one else's recording to license.
+Synthesized like tools/make-bowl.py, so there is no one else's recording to license.
 
 Needs numpy and oggenc (vorbis-tools). Run from anywhere:  python3 tools/make-breath-tones.py
 """
