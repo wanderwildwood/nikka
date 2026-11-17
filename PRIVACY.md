@@ -8,7 +8,11 @@ ticked, the log of sittings and breathing sessions (when each began, how long it
 how long it lasted, a breathing session's pattern, and any note you wrote), how the next sitting is set, and its few settings. Android does not
 back it up, and uninstalling the app removes all of it.
 
-**Save a backup** in Settings writes all of that as one file, to the place you choose in the
+If Home (`com.wanderwildwood.iori`) is installed, Practice asks it whether its dark switch is
+on, so the two follow one switch. That is all it reads from Home, and it sends Home nothing.
+
+**Save a backup** in Settings writes the habits, their ticks and rest days, and the log as one
+file (not the settings), to the place you choose in the
 phone's file picker, and only when you press it. Where that file goes after that is up to you.
 
 The permissions it asks for are for the bells and the breathing cues and nothing else: exact
