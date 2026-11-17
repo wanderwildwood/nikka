@@ -259,6 +259,8 @@ fun BreathingScreen(run: BreathRun) {
     LaunchedEffect(run) {
         var last = -1
         while (true) {
+            // Ended from elsewhere (put away, Back): the cues stop now, not when the screen next draws.
+            if (Breathing.running.value !== run) break
             val at = run.breath.at(System.currentTimeMillis() - run.start, run.rounds)
             if (at == null) {
                 // Ran to the end. A sitting that follows rings its own bowl as it begins.
