@@ -8,6 +8,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -28,8 +29,10 @@ import com.wanderwildwood.nikka.sit.Breathing
 import com.wanderwildwood.nikka.sit.Sitting
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.time.temporal.WeekFields
 import java.util.Locale
+import kotlinx.coroutines.delay
 
 private sealed interface Screen {
     data object Tabs : Screen
@@ -74,7 +77,13 @@ fun PracticeApp() {
         resumed++
         onPauseOrDispose { }
     }
-    val today = remember(resumed, version) { LocalDate.now() }
+    // And again at midnight, for an app left open across it: a tick then is the new day's.
+    var midnight by remember { mutableIntStateOf(0) }
+    val today = remember(resumed, version, midnight) { LocalDate.now() }
+    LaunchedEffect(today, midnight) {
+        delay(msToNextDay(ZonedDateTime.now()))
+        midnight++
+    }
     val firstDay = remember(resumed) { WeekFields.of(Locale.getDefault()).firstDayOfWeek }
     val c = AppState(store, today, firstDay, version)
 
