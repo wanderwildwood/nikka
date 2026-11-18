@@ -80,7 +80,9 @@ class Prefs(context: Context) {
             val e = p.edit()
             if (v == null) {
                 e.remove("run_start").remove("run_warmup").remove("run_planned").remove("run_interval").remove("run_rung")
+                    .remove("run_shutdown")
             } else {
+                e.remove("run_shutdown")
                 e.putLong("run_start", v.start).putInt("run_warmup", v.warmupSec)
                     .putInt("run_planned", v.plannedSec).putInt("run_interval", v.intervalSec).putInt("run_rung", -1)
             }
@@ -91,6 +93,11 @@ class Prefs(context: Context) {
     var rung: Int
         get() = p.getInt("run_rung", -1)
         set(v) { p.edit().putInt("run_rung", v).commit() }
+
+    /** When the phone said it was shutting down during the sitting under way; -1 when it did not. */
+    var shutdownAt: Long
+        get() = p.getLong("run_shutdown", -1L)
+        set(v) { p.edit().putLong("run_shutdown", v).commit() }
 
     /** The interruption filter in force before this app set Do Not Disturb; -1 when it did not. */
     var filterBefore: Int

@@ -48,13 +48,28 @@ data class Plan(
 
     fun warmingUp(now: Long): Boolean = now < sitStart
 
+    /** Whether it was set going before the phone last started, which was at [bootAt]. */
+    fun beganBefore(bootAt: Long): Boolean = start < bootAt + BOOT_MARGIN_MS
+
     /**
-     * Seconds to log for a sitting the phone's restart cut off, seen at [now]: the planned length
-     * once its end is a minute gone (the end bell was lost, not the sitting), else the time sat.
+     * The last moment a sitting the phone's restart cut off is known to have been running: when
+     * the phone said it was shutting down ([shutdownAt], -1 when it did not, as when the battery
+     * ran out), else when its last bell ([rung]) rang, and never after the phone started again
+     * at [bootAt]. The time the phone was off is not time sat.
      */
-    fun satAfterRestart(now: Long): Int = if (now > end + 60_000L) plannedSec else satBy(now)
+    fun aliveUntil(rung: Int, shutdownAt: Long, bootAt: Long): Long {
+        val lastBell = bells().getOrNull(rung)?.at ?: start
+        val known = if (shutdownAt >= start) maxOf(shutdownAt, lastBell) else lastBell
+        return minOf(known, bootAt)
+    }
+
+    /** Seconds to log for a sitting the phone's restart cut off; see [aliveUntil]. */
+    fun satAfterRestart(rung: Int, shutdownAt: Long, bootAt: Long): Int = satBy(aliveUntil(rung, shutdownAt, bootAt))
 
     companion object {
         const val MIN_GAP_SEC = 5
+
+        /** Room for the wall clock against the boot clock: nothing can be started this soon after a boot. */
+        const val BOOT_MARGIN_MS = 10_000L
     }
 }

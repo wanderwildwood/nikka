@@ -49,16 +49,39 @@ class PlanTest {
         assertEquals(600, p.satBy(t0 + 9_999_999))
     }
 
-    @Test fun aRestartPartWayLogsTheTimeSat() {
+    @Test fun aRestartLogsTheTimeSatUntilTheShutdown() {
         val p = Plan(t0, 30, 600, 0)
-        assertEquals(0, p.satAfterRestart(t0 + 20_000))
-        assertEquals(120, p.satAfterRestart(t0 + 150_000))
-        // Within a minute of the end the end bell may still be due: what was sat, at most the plan.
-        assertEquals(600, p.satAfterRestart(p.end + 30_000))
+        val boot = t0 + 3_600_000
+        assertEquals(0, p.satAfterRestart(0, t0 + 20_000, boot))
+        assertEquals(120, p.satAfterRestart(0, t0 + 150_000, boot))
+        // Shut down after the end, with the end bell lost: the plan, no more.
+        assertEquals(600, p.satAfterRestart(0, p.end + 30_000, boot))
     }
 
-    @Test fun aRestartLongAfterTheEndLogsThePlan() {
+    @Test fun theTimeThePhoneWasOffIsNotTimeSat() {
+        // 30 minutes planned, an interval bell every 5; the battery runs out after the first.
+        val p = Plan(t0, 0, 1800, 300)
+        val boot = t0 + 20 * 60_000L
+        assertEquals(300, p.satAfterRestart(1, -1, boot))
+        // Back after the planned end, still only what is known to have been sat.
+        assertEquals(300, p.satAfterRestart(1, -1, p.end + 3_600_000))
+        // Nothing rung past the start bell and no word of a shutdown: nothing is known sat.
+        assertEquals(0, p.satAfterRestart(0, -1, boot))
+    }
+
+    @Test fun aShutdownFromAnEarlierSittingIsNotThisOnes() {
         val p = Plan(t0, 0, 600, 0)
-        assertEquals(600, p.satAfterRestart(p.end + 3_600_000))
+        assertEquals(0, p.satAfterRestart(0, t0 - 1, t0 + 3_600_000))
+    }
+
+    @Test fun neverPastTheBoot() {
+        val p = Plan(t0, 0, 600, 0)
+        assertEquals(t0 + 100_000, p.aliveUntil(0, t0 + 500_000, t0 + 100_000))
+    }
+
+    @Test fun onlyASittingFromBeforeTheBootIsCutOffByIt() {
+        val p = Plan(t0, 0, 600, 0)
+        assertEquals(true, p.beganBefore(t0 + 60_000))
+        assertEquals(false, p.beganBefore(t0 - 60_000))
     }
 }

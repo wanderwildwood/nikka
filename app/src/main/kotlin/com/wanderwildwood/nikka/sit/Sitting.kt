@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.SystemClock
 import android.util.Log
 import com.wanderwildwood.nikka.BuildConfig
 import com.wanderwildwood.nikka.MainActivity
@@ -33,16 +34,36 @@ object Sitting {
     /** The sitting just ended, waiting for its note; -1 for none. */
     val ended: StateFlow<Long> = _ended
 
-    /** Reads the state back after the process has started again. */
+    /**
+     * Reads the state back after the process has started again. Called from the activity, so it
+     * may start the foreground service.
+     */
     fun load(context: Context) {
         val prefs = Prefs(context)
         _running.value = prefs.running
         _ended.value = prefs.justEnded
-        // A sitting whose end passed while nothing was running to hear it (its alarm went with
-        // a force-stop) is finished now, at its planned length.
-        val p = prefs.running
-        if (p != null && System.currentTimeMillis() > p.end + 60_000L) finish(context, p.plannedSec)
+        val p = prefs.running ?: return
+        val now = System.currentTimeMillis()
+        when {
+            // Set going before the phone last started: the restart cut it off. The word that the
+            // phone has started may not have come yet, or may never come to an app that had been
+            // force-stopped, so it is ended here as well.
+            p.beganBefore(bootedAt(now)) -> endAfterRestart(context)
+            // Its end passed while nothing was running to hear it (its alarm went with a
+            // force-stop): finished now, at its planned length.
+            now > p.end + 60_000L -> finish(context, p.plannedSec)
+            // Still under way, but a force-stop may have taken its alarms and the service with
+            // them: set going again. A bell that has rung is not rung twice.
+            else -> try {
+                context.startForegroundService(Intent(context, SitService::class.java).setAction(SitService.ACTION_START))
+            } catch (e: IllegalStateException) {
+                schedule(context)
+            }
+        }
     }
+
+    /** When the phone last started, on the wall clock, seen at [now]. */
+    private fun bootedAt(now: Long): Long = now - SystemClock.elapsedRealtime()
 
     /**
      * Sets a sitting going as the Sit tab has it set. [warmup] false leaves the warm-up out, for
@@ -107,12 +128,22 @@ object Sitting {
     }
 
     /**
-     * After a restart: a sitting past its end is finished at its planned length, as [load] does,
-     * and one cut off part-way is ended for the time sat up to now.
+     * After a restart: a sitting set going before it is ended, for the time it is known to have
+     * run (see [Plan.aliveUntil]). One set going since, in the time before the word of the
+     * restart came, is left alone.
      */
     fun endAfterRestart(context: Context) {
-        val plan = Prefs(context).running ?: return
-        finish(context, plan.satAfterRestart(System.currentTimeMillis()))
+        val prefs = Prefs(context)
+        val plan = prefs.running ?: return
+        val bootAt = bootedAt(System.currentTimeMillis())
+        if (!plan.beganBefore(bootAt)) return
+        finish(context, plan.satAfterRestart(prefs.rung, prefs.shutdownAt, bootAt))
+    }
+
+    /** The phone is shutting down: the sitting under way is known to have run until now. */
+    fun shuttingDown(context: Context) {
+        val prefs = Prefs(context)
+        if (prefs.running != null) prefs.shutdownAt = System.currentTimeMillis()
     }
 
     /** Ends the sitting early, by a long press: logged for the time actually sat. */
