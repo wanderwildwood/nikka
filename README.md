@@ -36,7 +36,9 @@ ships with.
   sat. **Back** leaves the sitting running.
 - **Do not disturb while sitting**, in Settings, turns on alarms-only Do Not Disturb for the
   length of each sitting and puts it back afterwards. It needs the phone's permission once. If
-  the phone restarts during a sitting, the sitting ends there and Do Not Disturb goes back.
+  the phone restarts during a sitting, the sitting ends there, logged for the time sat until
+  the phone shut down, and Do Not Disturb goes back. If the app was stopped (see DuraSpeed
+  below), that waits until Practice is next opened.
 
 When a sitting ends you see how long it was, the streak it keeps, and a field for a one-line
 note.
@@ -116,7 +118,8 @@ The Kompakt's DuraSpeed setting can shut down apps a few minutes after the scree
 and an app shut down that way has its alarms canceled. A sitting runs as a foreground service
 for its whole length, but to be sure of the bells, Settings has a row on a Kompakt: **Open
 DuraSpeed**, tap **Open** there, switch Practice on in the list, and press **I have done
-this**. If DuraSpeed stops the app again later, the row comes back.
+this**. If DuraSpeed stops the app again later, the row comes back. A sitting it stopped is
+set going again when Practice is opened before its end, and finished when it is opened after.
 
 ## What it does not do
 
