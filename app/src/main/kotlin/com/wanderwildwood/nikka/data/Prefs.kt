@@ -94,8 +94,11 @@ class Prefs(context: Context) {
         get() = p.getInt("run_rung", -1)
         set(v) { p.edit().putInt("run_rung", v).commit() }
 
-    /** When the phone said it was shutting down during the sitting under way; -1 when it did not. */
-    var shutdownAt: Long
+    /**
+     * The last time the sitting under way was seen running, besides its bells: when the phone
+     * said it was shutting down, or when the app was last opened or left; -1 for never.
+     */
+    var aliveAt: Long
         get() = p.getLong("run_shutdown", -1L)
         set(v) { p.edit().putLong("run_shutdown", v).commit() }
 

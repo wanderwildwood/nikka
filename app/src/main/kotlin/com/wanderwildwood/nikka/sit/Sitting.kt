@@ -54,10 +54,13 @@ object Sitting {
             now > p.end + 60_000L -> finish(context, p.plannedSec)
             // Still under way, but a force-stop may have taken its alarms and the service with
             // them: set going again. A bell that has rung is not rung twice.
-            else -> try {
-                context.startForegroundService(Intent(context, SitService::class.java).setAction(SitService.ACTION_START))
-            } catch (e: IllegalStateException) {
-                schedule(context)
+            else -> {
+                seen(context)
+                try {
+                    context.startForegroundService(Intent(context, SitService::class.java).setAction(SitService.ACTION_START))
+                } catch (e: IllegalStateException) {
+                    schedule(context)
+                }
             }
         }
     }
@@ -137,13 +140,20 @@ object Sitting {
         val plan = prefs.running ?: return
         val bootAt = bootedAt(System.currentTimeMillis())
         if (!plan.beganBefore(bootAt)) return
-        finish(context, plan.satAfterRestart(prefs.rung, prefs.shutdownAt, bootAt))
+        finish(context, plan.satAfterRestart(prefs.rung, prefs.aliveAt, bootAt))
     }
 
-    /** The phone is shutting down: the sitting under way is known to have run until now. */
-    fun shuttingDown(context: Context) {
+    /**
+     * The sitting under way is known to be running now: called as the phone shuts down (heard by
+     * [SitService], the only place that word reaches) and as the app is opened or left, so a
+     * restart that cuts it off logs it up to here and not only up to its last bell.
+     */
+    fun seen(context: Context) {
         val prefs = Prefs(context)
-        if (prefs.running != null) prefs.shutdownAt = System.currentTimeMillis()
+        val plan = prefs.running ?: return
+        // Not after a restart that has yet to end it: that time was the phone off.
+        if (plan.beganBefore(bootedAt(System.currentTimeMillis()))) return
+        prefs.aliveAt = System.currentTimeMillis()
     }
 
     /** Ends the sitting early, by a long press: logged for the time actually sat. */

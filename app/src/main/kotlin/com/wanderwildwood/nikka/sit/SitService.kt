@@ -4,8 +4,10 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.IBinder
 import android.text.format.DateFormat
 import androidx.core.app.NotificationCompat
@@ -21,6 +23,24 @@ class SitService : Service() {
 
     private var sounding = 0
     private var stopping = false
+
+    // The word that the phone is shutting down comes only to a receiver registered at run time,
+    // not to one in the manifest; the service runs for the whole sitting, so it listens here.
+    private val shutdown = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            Sitting.seen(context)
+        }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        registerReceiver(shutdown, IntentFilter(Intent.ACTION_SHUTDOWN))
+    }
+
+    override fun onDestroy() {
+        unregisterReceiver(shutdown)
+        super.onDestroy()
+    }
 
     override fun onBind(intent: Intent?): IBinder? = null
 

@@ -49,7 +49,7 @@ class PlanTest {
         assertEquals(600, p.satBy(t0 + 9_999_999))
     }
 
-    @Test fun aRestartLogsTheTimeSatUntilTheShutdown() {
+    @Test fun aRestartLogsTheTimeSatUntilItWasLastSeen() {
         val p = Plan(t0, 30, 600, 0)
         val boot = t0 + 3_600_000
         assertEquals(0, p.satAfterRestart(0, t0 + 20_000, boot))
@@ -67,6 +67,25 @@ class PlanTest {
         assertEquals(300, p.satAfterRestart(1, -1, p.end + 3_600_000))
         // Nothing rung past the start bell and no word of a shutdown: nothing is known sat.
         assertEquals(0, p.satAfterRestart(0, -1, boot))
+    }
+
+    @Test fun noIntervalsLogsUpToTheLastTimeItWasSeen() {
+        // 20 minutes, no interval bells, so only the start bell (0) has rung when the phone goes.
+        val p = Plan(t0, 0, 1200, 0)
+        val boot = t0 + 3_600_000
+        // No word at all (the battery ran out with the app closed): nothing is known sat, so
+        // nothing is logged.
+        assertEquals(0, p.satAfterRestart(0, -1, boot))
+        // Left the app 2 minutes in, phone off later without a word: those 2 minutes.
+        assertEquals(120, p.satAfterRestart(0, t0 + 120_000, boot))
+        // The phone said it was shutting down 9 minutes in: 9 minutes.
+        assertEquals(540, p.satAfterRestart(0, t0 + 540_000, boot))
+    }
+
+    @Test fun aLaterBellOutweighsAnEarlierSighting() {
+        val p = Plan(t0, 0, 1800, 300)
+        // Opened 2 minutes in, then the bell at 10 minutes rang before the phone went.
+        assertEquals(600, p.satAfterRestart(2, t0 + 120_000, t0 + 3_600_000))
     }
 
     @Test fun aShutdownFromAnEarlierSittingIsNotThisOnes() {

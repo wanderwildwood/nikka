@@ -75,7 +75,7 @@ fun PracticeApp() {
     LifecycleResumeEffect(Unit) {
         Sitting.load(context)
         resumed++
-        onPauseOrDispose { }
+        onPauseOrDispose { Sitting.seen(context) }
     }
     // And again at midnight, for an app left open across it: a tick then is the new day's.
     var midnight by remember { mutableIntStateOf(0) }

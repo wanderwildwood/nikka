@@ -53,18 +53,20 @@ data class Plan(
 
     /**
      * The last moment a sitting the phone's restart cut off is known to have been running: when
-     * the phone said it was shutting down ([shutdownAt], -1 when it did not, as when the battery
-     * ran out), else when its last bell ([rung]) rang, and never after the phone started again
-     * at [bootAt]. The time the phone was off is not time sat.
+     * it was last seen running ([aliveAt]: the phone saying it was shutting down, or the app
+     * opened or left; -1 for never) or when its last bell ([rung]) rang, whichever was later,
+     * and never after the phone started again at [bootAt]. The time the phone was off is not
+     * time sat, and neither is time no one saw: with no word at all, as when the battery ran out
+     * with the app closed and no bell rung since the start, nothing is known sat.
      */
-    fun aliveUntil(rung: Int, shutdownAt: Long, bootAt: Long): Long {
+    fun aliveUntil(rung: Int, aliveAt: Long, bootAt: Long): Long {
         val lastBell = bells().getOrNull(rung)?.at ?: start
-        val known = if (shutdownAt >= start) maxOf(shutdownAt, lastBell) else lastBell
+        val known = if (aliveAt >= start) maxOf(aliveAt, lastBell) else lastBell
         return minOf(known, bootAt)
     }
 
     /** Seconds to log for a sitting the phone's restart cut off; see [aliveUntil]. */
-    fun satAfterRestart(rung: Int, shutdownAt: Long, bootAt: Long): Int = satBy(aliveUntil(rung, shutdownAt, bootAt))
+    fun satAfterRestart(rung: Int, aliveAt: Long, bootAt: Long): Int = satBy(aliveUntil(rung, aliveAt, bootAt))
 
     companion object {
         const val MIN_GAP_SEC = 5
