@@ -36,8 +36,10 @@ ships with.
   sat. **Back** leaves the sitting running.
 - **Do not disturb while sitting**, in Settings, turns on alarms-only Do Not Disturb for the
   length of each sitting and puts it back afterwards. It needs the phone's permission once. If
-  the phone restarts during a sitting, the sitting ends there, logged for the time sat until
-  the phone shut down, and Do Not Disturb goes back. If the app was stopped (see DuraSpeed
+  the phone restarts during a sitting, the sitting ends there and Do Not Disturb goes back. It
+  is logged up to the last moment Practice knows it was running: the phone shutting down, a
+  bell, or the app being opened or left. If the battery runs out before any of these, nothing
+  of it is logged. If the app was stopped (see DuraSpeed
   below), that waits until Practice is next opened.
 
 When a sitting ends you see how long it was, the streak it keeps, and a field for a one-line
