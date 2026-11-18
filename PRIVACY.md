@@ -20,7 +20,8 @@ alarms, so the bells ring on time; a foreground service and a wake lock, so they
 screen off; notifications, for the quiet one that shows while a sitting is under way (Android
 asks a foreground service to show one); vibration, to mark each change of breath when that is
 the cue you choose; and, only if you switch it on, access to Do Not Disturb, so it can turn alarms-only
-on for a sitting and back off afterwards. The one more in its manifest is not one you are asked
+on for a sitting and back off afterwards; and word that the phone has started again, so a
+sitting the restart cut off is ended and Do Not Disturb put back. The one more in its manifest is not one you are asked
 for: Android's support library adds it to every app built with it
 (`DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`), so that the app's own internal messages can reach
 only the app itself.

@@ -106,6 +106,15 @@ object Sitting {
         }
     }
 
+    /**
+     * After a restart: a sitting past its end is finished at its planned length, as [load] does,
+     * and one cut off part-way is ended for the time sat up to now.
+     */
+    fun endAfterRestart(context: Context) {
+        val plan = Prefs(context).running ?: return
+        finish(context, plan.satAfterRestart(System.currentTimeMillis()))
+    }
+
     /** Ends the sitting early, by a long press: logged for the time actually sat. */
     fun endEarly(context: Context) {
         val plan = Prefs(context).running ?: return
@@ -123,7 +132,11 @@ object Sitting {
         quiet(context, prefs, on = false)
         _running.value = null
         _ended.value = id
-        context.startService(Intent(context, SitService::class.java).setAction(SitService.ACTION_STOP))
+        try {
+            context.startService(Intent(context, SitService::class.java).setAction(SitService.ACTION_STOP))
+        } catch (e: IllegalStateException) {
+            // From the background after a restart, with no service running there is none to stop.
+        }
     }
 
     fun noteDone(context: Context) {

@@ -48,4 +48,17 @@ class PlanTest {
         assertEquals(90, p.satBy(t0 + 150_000))
         assertEquals(600, p.satBy(t0 + 9_999_999))
     }
+
+    @Test fun aRestartPartWayLogsTheTimeSat() {
+        val p = Plan(t0, 30, 600, 0)
+        assertEquals(0, p.satAfterRestart(t0 + 20_000))
+        assertEquals(120, p.satAfterRestart(t0 + 150_000))
+        // Within a minute of the end the end bell may still be due: what was sat, at most the plan.
+        assertEquals(600, p.satAfterRestart(p.end + 30_000))
+    }
+
+    @Test fun aRestartLongAfterTheEndLogsThePlan() {
+        val p = Plan(t0, 0, 600, 0)
+        assertEquals(600, p.satAfterRestart(p.end + 3_600_000))
+    }
 }

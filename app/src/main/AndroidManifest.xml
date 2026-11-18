@@ -16,6 +16,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- A buzz at each change of breath, when the breathing cue is set to vibrate. -->
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- After a restart, to end a sitting the restart cut off and put Do Not Disturb back. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <queries>
         <!-- Home, whose dark mode switch this app follows when Home is installed. -->
@@ -70,6 +72,14 @@
         <receiver
             android:name=".sit.BellReceiver"
             android:exported="false" />
+
+        <receiver
+            android:name=".sit.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
     </application>
 

@@ -48,6 +48,12 @@ data class Plan(
 
     fun warmingUp(now: Long): Boolean = now < sitStart
 
+    /**
+     * Seconds to log for a sitting the phone's restart cut off, seen at [now]: the planned length
+     * once its end is a minute gone (the end bell was lost, not the sitting), else the time sat.
+     */
+    fun satAfterRestart(now: Long): Int = if (now > end + 60_000L) plannedSec else satBy(now)
+
     companion object {
         const val MIN_GAP_SEC = 5
     }

@@ -35,7 +35,8 @@ ships with.
 - **Hold anywhere to end early.** A sitting ended early is still logged, for the time actually
   sat. **Back** leaves the sitting running.
 - **Do not disturb while sitting**, in Settings, turns on alarms-only Do Not Disturb for the
-  length of each sitting and puts it back afterwards. It needs the phone's permission once.
+  length of each sitting and puts it back afterwards. It needs the phone's permission once. If
+  the phone restarts during a sitting, the sitting ends there and Do Not Disturb goes back.
 
 When a sitting ends you see how long it was, the streak it keeps, and a field for a one-line
 note.
